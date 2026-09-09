@@ -1,0 +1,31 @@
+name: Daily Genre Pool Auto-Tune
+
+on:
+  schedule:
+    # Runs every single day at 04:00 UTC (midnight EST)
+    - cron: '0 4 * * *'
+  workflow_dispatch: # Lets you trigger it manually anytime via the Actions tab
+
+jobs:
+  auto-tune:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Auto-Trainer Script
+        run: node scripts/update_genres.js
+
+      - name: Auto-Commit and Push Verified Seeds
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-Tune: Daily genre discovery pool refresh"
+          file_pattern: "genre_map.json"
