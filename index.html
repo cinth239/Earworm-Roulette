@@ -365,13 +365,13 @@
     }
 
     .deck-actions {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
       width: 100%;
     }
 
     .btn {
-      flex: 1;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--surface-border);
       color: white;
@@ -396,6 +396,7 @@
       background: rgba(244, 63, 94, 0.15);
       border-color: rgba(244, 63, 94, 0.3);
       color: #fda4af;
+      grid-column: span 2;
     }
 
     .btn-fav:hover {
@@ -578,6 +579,16 @@
         </div>
 
         <div class="deck-actions">
+          <button class="btn" id="playPauseBtn" onclick="togglePlay()">
+            <svg id="playIcon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span id="playPauseText">Play</span>
+          </button>
+          
+          <button class="btn" onclick="stopAudio()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
+            Stop
+          </button>
+          
           <button class="btn" onclick="rerollTrack()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 3 21 3 21 8"></polyline>
@@ -586,14 +597,14 @@
               <line x1="15" y1="15" x2="21" y2="21"></line>
               <line x1="4" y1="4" x2="9" y2="9"></line>
             </svg>
-            Spin Random
+            Spin
           </button>
           
           <button class="btn btn-fav" onclick="saveFavorite()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
-            Favorite
+            Fav
           </button>
         </div>
       </div>
@@ -903,13 +914,40 @@
     ]
   };
 
+  // Expanded Discovery Pools targeting highly ambiguous genres
   let GENRE_SEARCH_MAP = {
+    // Bass & Dubstep
     "organic bass": ["Of The Trees", "CharlesTheFirst", "Supertask", "CloZee", "Goopsteppa", "Chmura", "Esseks", "Player Dave"],
     "space bass": ["Liquid Stranger", "LSDREAM", "Peekaboo", "Inzo", "Ravenscoon", "Mersiv", "G-Rex", "Zingara"],
     "modular bass": ["G Jones", "Eprom", "Bleep Bloop", "Chee", "Shades", "Alix Perez", "IMANU", "Ivy Lab"],
     "ambient 140": ["Kahn", "Alix Perez", "Ternion Sound", "Commodo", "Biome", "J:Kenzo", "Distinct Motive"],
     "neuro glitch hop": ["Tipper", "Detox Unit", "Kursa", "Seppa", "Resonant Language", "Jade Cicada", "Spoonbill", "Culprate"],
-    "downtempo bass": ["Emancipator", "Tor", "Bluetech", "Tycho", "Bonobo", "Frameworks", "Random Rab", "Desert Dwellers"]
+    "downtempo bass": ["Emancipator", "Tor", "Bluetech", "Tycho", "Bonobo", "Frameworks", "Random Rab", "Desert Dwellers"],
+    "riddim": ["Infekt", "Virtual Riot", "Subtronics", "Boogie T", "Oolacile", "Svdden Death", "TrollPhace", "Midnight Tyrannosaurus"],
+    
+    // Wave & Trap
+    "wave": ["Skeler", "Deadcrow", "Klimeks", "Ytho", "Juche", "Enjoii", "Plastician"],
+    "hardwave": ["Skeler", "Deadcrow", "Klimeks", "Ytho", "Juche", "Enjoii"],
+    "trap": ["RL Grime", "Flosstradamus", "Baauer", "TroyBoi", "Mr. Carmack", "Hucci", "UZ", "Yellow Claw"],
+    "future bass": ["Flume", "Illenium", "San Holo", "Odesza", "Louis The Child", "Kasbo", "Alison Wonderland"],
+
+    // Club & House
+    "club": ["DJ Sliink", "Uniiqu3", "Rudd3boy", "Mighty Mark", "DJ Taye", "DJ Rashad"],
+    "bounce": ["Will Sparks", "Timmy Trumpet", "Joel Fletcher", "Deorro", "TJR"],
+    "french house": ["Daft Punk", "Justice", "Cassius", "Kavinsky", "SebastiAn", "Modjo"],
+
+    // Ambient & Drone
+    "drone": ["Sunn O)))", "Tim Hecker", "Stars of the Lid", "William Basinski", "Fennesz", "Brian Eno"],
+    "dark ambient": ["Lustmord", "Cryo Chamber", "Atrium Carceri", "Kammarheit", "Raison d'être"],
+    
+    // Indie & Rock
+    "dream pop": ["Beach House", "Slowdive", "Cocteau Twins", "Alvvays", "Mazzy Star", "Wild Nothing"],
+    "shoegaze": ["My Bloody Valentine", "Slowdive", "Ride", "Lush", "Deafheaven", "DIIV"],
+    "doom metal": ["Electric Wizard", "Sleep", "Candlemass", "Pentagram", "Saint Vitus"],
+    "midwest emo": ["American Football", "Modern Baseball", "The Front Bottoms", "Tiny Moving Parts", "Cap'n Jazz"],
+
+    // Hip Hop
+    "drill": ["Chief Keef", "Pop Smoke", "Fivio Foreign", "Headie One", "Central Cee", "King Von"]
   };
 
   let ALL_TAGS = [];
@@ -933,11 +971,22 @@
     }
   });
 
-  player.addEventListener("play", () => coverArt.classList.add("spinning"));
-  player.addEventListener("pause", () => coverArt.classList.remove("spinning"));
-  player.addEventListener("ended", () => {
+  player.addEventListener("play", () => {
+    coverArt.classList.add("spinning");
+    document.getElementById("playPauseText").textContent = "Pause";
+    document.getElementById("playIcon").innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+  });
+
+  player.addEventListener("pause", () => {
     coverArt.classList.remove("spinning");
+    document.getElementById("playPauseText").textContent = "Play";
+    document.getElementById("playIcon").innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+  });
+
+  player.addEventListener("ended", () => {
     progressFill.style.width = "0%";
+    document.getElementById("playPauseText").textContent = "Play";
+    document.getElementById("playIcon").innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
   });
 
   function formatTime(s) {
@@ -953,6 +1002,21 @@
     const clickX = e.clientX - rect.left;
     const pct = clickX / rect.width;
     player.currentTime = pct * player.duration;
+  }
+
+  function togglePlay() {
+    if (!player.src) return;
+    if (player.paused) {
+      player.play().catch(() => {});
+    } else {
+      player.pause();
+    }
+  }
+
+  function stopAudio() {
+    if (!player.src) return;
+    player.pause();
+    player.currentTime = 0;
   }
 
   async function loadAutomatedGenreMap() {
@@ -1089,7 +1153,6 @@
     let candidatePool = [];
 
     if (Array.isArray(mapped) && mapped.length > 0) {
-      // Shuffle candidates so it tries different seeds if one returns no clean matches
       candidatePool = [...mapped].sort(() => 0.5 - Math.random());
     } else {
       candidatePool = [genre];
@@ -1097,7 +1160,6 @@
 
     let pick = null;
 
-    // Loop through seeds until a verified, strictly accurate track is found
     for (const seed of candidatePool) {
       try {
         const isMappedArtist = Array.isArray(mapped);
@@ -1107,17 +1169,15 @@
 
         if (!data.results || data.results.length === 0) continue;
 
-        // CLIENT-SIDE FILTER: Enforce that the result actually belongs to this seed or subgenre
         const viable = data.results.filter(t => {
           if (!t.previewUrl || playHistory.includes(t.trackId)) return false;
 
           if (isMappedArtist) {
-            // Must contain the verified seed artist's name (prevents Nirvana matching "potions")
+            // STRICT CLIENT-SIDE CHECK: Exact string inclusion ensures classical artists don't slip in
             const artistLower = (t.artistName || "").toLowerCase();
             const seedLower = seed.toLowerCase();
-            return artistLower.includes(seedLower) || seedLower.includes(artistLower);
+            return artistLower === seedLower || artistLower.includes(seedLower);
           } else {
-            // For unmapped genres, exclude spoken word, podcasts, and off-genre pop misflags
             const pGenre = (t.primaryGenreName || "").toLowerCase();
             return pGenre !== "spoken word" && pGenre !== "comedy";
           }
@@ -1125,7 +1185,7 @@
 
         if (viable.length > 0) {
           pick = viable[Math.floor(Math.random() * viable.length)];
-          break; // Match found, break loop
+          break; 
         }
       } catch (err) {
         console.warn(`Seed failed for "${seed}":`, err);
