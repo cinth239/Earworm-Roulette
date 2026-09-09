@@ -907,7 +907,7 @@
     "organic bass": ["Of The Trees", "CharlesTheFirst", "Supertask", "CloZee", "Goopsteppa", "Chmura", "Esseks", "Player Dave"],
     "space bass": ["Liquid Stranger", "LSDREAM", "Peekaboo", "Inzo", "Ravenscoon", "Mersiv", "G-Rex", "Zingara"],
     "modular bass": ["G Jones", "Eprom", "Bleep Bloop", "Chee", "Shades", "Alix Perez", "IMANU", "Ivy Lab"],
-    "ambient 140": ["Kahn", "Alix Perez", "Ternion Sound", "Truth", "Commodo", "Biome", "J:Kenzo", "Distinct Motive"],
+    "ambient 140": ["Kahn", "Alix Perez", "Ternion Sound", "Commodo", "Biome", "J:Kenzo", "Distinct Motive"],
     "neuro glitch hop": ["Tipper", "Detox Unit", "Kursa", "Seppa", "Resonant Language", "Jade Cicada", "Spoonbill", "Culprate"],
     "downtempo bass": ["Emancipator", "Tor", "Bluetech", "Tycho", "Bonobo", "Frameworks", "Random Rab", "Desert Dwellers"]
   };
@@ -961,10 +961,9 @@
       if (res.ok) {
         const liveMap = await res.json();
         GENRE_SEARCH_MAP = Object.assign({}, GENRE_SEARCH_MAP, liveMap);
-        console.log("Daily automated genre pool active:", Object.keys(liveMap).length, "tags updated");
       }
     } catch {
-      console.warn("Operating on local discovery pools.");
+      // Fallback pools remain active
     }
   }
 
@@ -1086,53 +1085,78 @@
     document.getElementById("songTitle").textContent = "Spinning roulette...";
     document.getElementById("songArtist").textContent = `Querying ${genre}`;
 
-    try {
-      let targetQuery = genre;
-      let attributeParam = "";
-      const mapped = GENRE_SEARCH_MAP[genre];
+    const mapped = GENRE_SEARCH_MAP[genre];
+    let candidatePool = [];
 
-      if (Array.isArray(mapped) && mapped.length > 0) {
-        targetQuery = mapped[Math.floor(Math.random() * mapped.length)];
-        attributeParam = "&attribute=artistTerm";
-      } else if (typeof mapped === "string") {
-        targetQuery = mapped;
-      }
-
-      const queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(targetQuery)}${attributeParam}&media=music&entity=song&limit=200`;
-      const data = await fetchJsonp(queryUrl);
-      const viable = data.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
-
-      if (!viable.length) {
-        document.getElementById("songTitle").textContent = "Zero samples found";
-        document.getElementById("songArtist").textContent = "Try rerolling or select another genre";
-        return;
-      }
-
-      const pick = viable[Math.floor(Math.random() * viable.length)];
-      playHistory.push(pick.trackId);
-      if (playHistory.length > 50) playHistory.shift();
-
-      currentTrack = {
-        id: pick.trackId,
-        title: pick.trackName,
-        artist: pick.artistName,
-        genre: genre,
-        cover: pick.artworkUrl100.replace("100x100bb", "400x400bb"),
-        previewUrl: pick.previewUrl,
-        appleUrl: pick.trackViewUrl
-      };
-
-      document.getElementById("songTitle").textContent = currentTrack.title;
-      document.getElementById("songArtist").textContent = currentTrack.artist;
-      coverArt.src = currentTrack.cover;
-
-      player.src = currentTrack.previewUrl;
-      player.play().catch(() => {});
-    } catch (err) {
-      console.error(err);
-      document.getElementById("songTitle").textContent = "Connection issue";
-      document.getElementById("songArtist").textContent = "Check network or pick another tag";
+    if (Array.isArray(mapped) && mapped.length > 0) {
+      // Shuffle candidates so it tries different seeds if one returns no clean matches
+      candidatePool = [...mapped].sort(() => 0.5 - Math.random());
+    } else {
+      candidatePool = [genre];
     }
+
+    let pick = null;
+
+    // Loop through seeds until a verified, strictly accurate track is found
+    for (const seed of candidatePool) {
+      try {
+        const isMappedArtist = Array.isArray(mapped);
+        const attributeParam = isMappedArtist ? "&attribute=artistTerm" : "";
+        const queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(seed)}${attributeParam}&media=music&entity=song&limit=100`;
+        const data = await fetchJsonp(queryUrl);
+
+        if (!data.results || data.results.length === 0) continue;
+
+        // CLIENT-SIDE FILTER: Enforce that the result actually belongs to this seed or subgenre
+        const viable = data.results.filter(t => {
+          if (!t.previewUrl || playHistory.includes(t.trackId)) return false;
+
+          if (isMappedArtist) {
+            // Must contain the verified seed artist's name (prevents Nirvana matching "potions")
+            const artistLower = (t.artistName || "").toLowerCase();
+            const seedLower = seed.toLowerCase();
+            return artistLower.includes(seedLower) || seedLower.includes(artistLower);
+          } else {
+            // For unmapped genres, exclude spoken word, podcasts, and off-genre pop misflags
+            const pGenre = (t.primaryGenreName || "").toLowerCase();
+            return pGenre !== "spoken word" && pGenre !== "comedy";
+          }
+        });
+
+        if (viable.length > 0) {
+          pick = viable[Math.floor(Math.random() * viable.length)];
+          break; // Match found, break loop
+        }
+      } catch (err) {
+        console.warn(`Seed failed for "${seed}":`, err);
+      }
+    }
+
+    if (!pick) {
+      document.getElementById("songTitle").textContent = "Zero clean samples found";
+      document.getElementById("songArtist").textContent = "Try rerolling or pick another tag";
+      return;
+    }
+
+    playHistory.push(pick.trackId);
+    if (playHistory.length > 50) playHistory.shift();
+
+    currentTrack = {
+      id: pick.trackId,
+      title: pick.trackName,
+      artist: pick.artistName,
+      genre: genre,
+      cover: pick.artworkUrl100.replace("100x100bb", "400x400bb"),
+      previewUrl: pick.previewUrl,
+      appleUrl: pick.trackViewUrl
+    };
+
+    document.getElementById("songTitle").textContent = currentTrack.title;
+    document.getElementById("songArtist").textContent = currentTrack.artist;
+    coverArt.src = currentTrack.cover;
+
+    player.src = currentTrack.previewUrl;
+    player.play().catch(() => {});
   }
 
   function rerollTrack() {
