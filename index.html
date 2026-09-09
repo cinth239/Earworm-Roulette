@@ -3,316 +3,605 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Every Noise Explorer - Mega Taxonomy Edition</title>
+  <title>Earworm Roulette — Sonic Microgenre Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0c10;
-      --surface: #121620;
-      --card: #1a202e;
-      --accent: #ff4757;
+      --bg: #07090e;
+      --surface: rgba(18, 22, 34, 0.75);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --surface-hover: rgba(255, 255, 255, 0.04);
+      --accent: #f43f5e;
+      --accent-glow: rgba(244, 63, 94, 0.35);
       --primary: #38bdf8;
+      --primary-glow: rgba(56, 189, 248, 0.3);
       --text: #f8fafc;
       --muted: #94a3b8;
-      --border: #242c3d;
+      --chip-bg: rgba(26, 32, 48, 0.6);
+      --chip-border: rgba(255, 255, 255, 0.06);
     }
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
     body {
       background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.5) 0px, transparent 100%);
       color: var(--text);
-      margin: 0;
-      padding: 16px;
       height: 100vh;
       display: flex;
       flex-direction: column;
+      padding: 20px 24px;
       overflow: hidden;
     }
+
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--surface-border);
       flex-shrink: 0;
-      gap: 16px;
+      gap: 20px;
     }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35), inset 0 0 12px rgba(56, 189, 248, 0.08);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .logo-mark:hover {
+      transform: scale(1.05);
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(180deg, #fff 30%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
     .status-badge {
-      font-size: 0.75rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 4px 10px;
-      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
       color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.3px;
     }
+
+    .search-wrapper {
+      position: relative;
+      width: 360px;
+    }
+
     .search-input {
+      width: 100%;
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 1px solid var(--surface-border);
+      backdrop-filter: blur(12px);
       color: white;
-      padding: 8px 14px;
-      border-radius: 8px;
-      width: 320px;
+      padding: 10px 16px 10px 38px;
+      border-radius: 12px;
       outline: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
     }
-    .search-input:focus { border-color: var(--primary); }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
 
     .main-layout {
       display: grid;
-      grid-template-columns: 240px 1fr 340px;
-      gap: 14px;
+      grid-template-columns: 260px 1fr 360px;
+      gap: 18px;
       flex: 1;
       overflow: hidden;
-      margin-top: 12px;
+      margin-top: 18px;
     }
 
-    .column {
+    .panel {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      border: 1px solid var(--surface-border);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
-    .col-header {
-      padding: 10px 14px;
-      font-size: 0.75rem;
+
+    .panel-header {
+      padding: 14px 18px;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 1px;
       color: var(--muted);
-      letter-spacing: 0.5px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--surface-border);
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
 
-    .parent-list {
+    .family-list {
       list-style: none;
-      margin: 0;
-      padding: 6px;
+      padding: 10px;
       overflow-y: auto;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
     }
-    .parent-item {
-      padding: 8px 12px;
-      border-radius: 6px;
+
+    .family-item {
+      padding: 10px 14px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.86rem;
+      font-weight: 500;
       display: flex;
       justify-content: space-between;
       align-items: center;
       color: #cbd5e1;
+      transition: all 0.15s ease;
     }
-    .parent-item:hover { background: var(--card); }
-    .parent-item.active {
-      background: rgba(56, 189, 248, 0.15);
+
+    .family-item:hover {
+      background: var(--surface-hover);
+      color: #fff;
+    }
+
+    .family-item.active {
+      background: rgba(56, 189, 248, 0.12);
       color: var(--primary);
       font-weight: 600;
-      border-left: 3px solid var(--primary);
+      box-shadow: inset 3px 0 0 var(--primary);
     }
-    .count-tag {
+
+    .badge-count {
       font-size: 0.7rem;
-      background: var(--card);
-      padding: 1px 6px;
-      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 7px;
+      border-radius: 6px;
       color: var(--muted);
     }
 
-    .subgenre-grid {
-      padding: 12px;
+    .subgenre-container {
+      padding: 16px;
       overflow-y: auto;
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
       align-content: flex-start;
       flex: 1;
     }
-    .sub-chip {
-      background: var(--card);
-      border: 1px solid var(--border);
+
+    .sub-pill {
+      background: var(--chip-bg);
+      border: 1px solid var(--chip-border);
       color: #cbd5e1;
-      padding: 6px 10px;
-      border-radius: 5px;
+      padding: 7px 14px;
+      border-radius: 9999px;
       font-size: 0.8rem;
       cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       user-select: none;
     }
-    .sub-chip:hover { border-color: var(--primary); color: white; }
-    .sub-chip.active {
+
+    .sub-pill:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .sub-pill.active {
       background: var(--primary);
       border-color: var(--primary);
-      color: #0b0d13;
-      font-weight: 600;
+      color: #050811;
+      font-weight: 700;
+      box-shadow: 0 4px 16px var(--primary-glow);
     }
 
     .sidebar {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
       overflow: hidden;
     }
-    .player-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-    }
-    .current-genre-badge {
-      display: inline-block;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-bottom: 12px;
-    }
-    .cover-art {
-      width: 120px;
-      height: 120px;
-      border-radius: 8px;
-      background: var(--card);
-      margin: 0 auto 10px;
-      object-fit: cover;
-      display: block;
-      border: 1px solid var(--border);
-    }
-    .song-title { font-size: 0.95rem; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .song-artist { font-size: 0.8rem; color: var(--muted); margin: 3px 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
-    audio { 
-      width: 100%; 
-      height: 32px; 
-      margin-bottom: 12px; 
-    }
 
-    .controls { display: flex; gap: 8px; justify-content: center; }
-    .btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: white;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn:hover { background: #262e40; }
-    .btn-fav { 
-      background: var(--accent); 
-      border-color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .fav-drawer {
+    .deck-card {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      border: 1px solid var(--surface-border);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      flex: 1;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .current-genre-badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--primary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+    }
+
+    .art-wrapper {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      position: relative;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      border: 4px solid #1e293b;
+    }
+
+    .cover-art {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .cover-art.spinning {
+      animation: spin 16s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .track-meta {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .track-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-artist {
+      font-size: 0.85rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .custom-player {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      cursor: pointer;
+      position: relative;
       overflow: hidden;
     }
+
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), #818cf8);
+      border-radius: 9999px;
+    }
+
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: monospace;
+    }
+
+    .deck-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--surface-border);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-fav {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: rgba(244, 63, 94, 0.3);
+      color: #fda4af;
+    }
+
+    .btn-fav:hover {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .favorites-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
     .fav-list {
       list-style: none;
-      padding: 8px;
+      padding: 12px;
       margin: 0;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
-    .fav-item {
-      background: var(--card);
-      padding: 8px 10px;
-      border-radius: 6px;
+
+    .fav-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--surface-border);
+      padding: 10px 12px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 0.75rem;
+      gap: 12px;
+      transition: border-color 0.2s;
     }
-    .fav-item img { width: 38px; height: 38px; border-radius: 4px; object-fit: cover; }
-    .fav-meta { flex: 1; min-width: 0; }
-    .fav-meta div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    
+
+    .fav-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .fav-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #1e293b;
+    }
+
+    .fav-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .fav-track-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .fav-track-artist {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .stream-badges {
       display: flex;
+      gap: 6px;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 5px;
     }
+
     .badge-btn {
       text-decoration: none;
-      font-size: 0.68rem;
-      font-weight: 600;
-      padding: 3px 7px;
-      border-radius: 4px;
-      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
       transition: opacity 0.15s;
     }
+
     .badge-btn:hover { opacity: 0.85; }
-    .badge-spotify { background: #1db954; color: #000; }
+    .badge-spotify { background: #1ed760; color: #000; }
     .badge-ytmusic { background: #ff0000; color: #fff; }
-    .badge-ytvideo { background: #c4302b; color: #fff; }
+    .badge-ytvideo { background: #b91c1c; color: #fff; }
     .badge-apple { background: #fc3c44; color: #fff; }
 
-    .delete-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 4px; }
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px;
+    }
+
     .delete-btn:hover { color: var(--accent); }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
   </style>
 </head>
 <body>
 
   <header>
-    <div>
-      <h2 style="margin: 0; font-size: 1.15rem; display: inline-block;">Every Noise Explorer</h2>
+    <div class="brand-group">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.15)"/>
+          <path d="M12 6a6 6 0 0 1 6 6" stroke="var(--primary)"/>
+          <path d="M12 8a4 4 0 0 1 4 4" stroke="var(--accent)"/>
+          <circle cx="12" cy="12" r="1.5" fill="#fff"/>
+          <path d="M6 12a6 6 0 0 1 6-6" stroke="var(--primary)" opacity="0.6"/>
+          <path d="M8 12a4 4 0 0 1 4-4" stroke="var(--accent)" opacity="0.6"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">Earworm Roulette</div>
+      </div>
       <span class="status-badge" id="loadStatus">Indexed</span>
     </div>
-    <input type="text" class="search-input" id="globalSearch" placeholder="Search 1,500+ microgenres..." oninput="filterGenres()" />
+
+    <div class="search-wrapper">
+      <span class="search-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </span>
+      <input type="text" class="search-input" id="globalSearch" placeholder="Search 1,500+ microgenres..." oninput="filterGenres()" />
+    </div>
   </header>
 
   <div class="main-layout">
-    <div class="column">
-      <div class="col-header">
-        <span>Main Genres</span>
-        <span id="totalFamilies">0</span>
+    <div class="panel">
+      <div class="panel-header">
+        <span>Families</span>
+        <span id="totalFamilies" class="badge-count">0</span>
       </div>
-      <ul class="parent-list" id="familyList"></ul>
+      <ul class="family-list" id="familyList"></ul>
     </div>
 
-    <div class="column">
-      <div class="col-header">
+    <div class="panel">
+      <div class="panel-header">
         <span id="activeFamilyTitle">Subgenres</span>
-        <span id="subgenreCountBadge">0</span>
+        <span id="subgenreCountBadge" class="badge-count">0</span>
       </div>
-      <div class="subgenre-grid" id="subgenreGrid"></div>
+      <div class="subgenre-container" id="subgenreGrid"></div>
     </div>
 
     <div class="sidebar">
-      <div class="player-card">
-        <div class="current-genre-badge" id="nowPlayingGenreBadge">Select a Subgenre</div>
-        <img id="coverArt" class="cover-art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100%25' height='100%25' fill='%231a202e'/%3E%3C/svg%3E" alt="Cover" />
-        <div class="song-title" id="songTitle">Ready to Explore</div>
-        <div class="song-artist" id="songArtist">Pick any subgenre tag</div>
+      <div class="deck-card">
+        <div class="current-genre-badge" id="nowPlayingGenreBadge">Pick a Microgenre</div>
         
-        <audio id="player" controls controlsList="nodownload" oncontextmenu="return false;"></audio>
+        <div class="art-wrapper">
+          <img id="coverArt" class="cover-art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100%25' height='100%25' fill='%23121622'/%3E%3C/svg%3E" alt="Vinyl" />
+        </div>
+
+        <div class="track-meta">
+          <div class="track-title" id="songTitle">Ready to Spin</div>
+          <div class="track-artist" id="songArtist">Select any genre tag to sample</div>
+        </div>
+
+        <audio id="player" preload="none" oncontextmenu="return false;"></audio>
         
-        <div class="controls">
-          <button class="btn" onclick="rerollTrack()">🎲 Random Track</button>
-          <button class="btn btn-fav" onclick="saveFavorite()">❤️ Favorite</button>
+        <div class="custom-player">
+          <div class="progress-bar" id="progressBar" onclick="seekAudio(event)">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="time-row">
+            <span id="currTime">0:00</span>
+            <span id="durTime">0:30</span>
+          </div>
+        </div>
+
+        <div class="deck-actions">
+          <button class="btn" onclick="rerollTrack()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="21" y2="3"></line>
+              <polyline points="21 16 21 21 16 21"></polyline>
+              <line x1="15" y1="15" x2="21" y2="21"></line>
+              <line x1="4" y1="4" x2="9" y2="9"></line>
+            </svg>
+            Spin Random
+          </button>
+          
+          <button class="btn btn-fav" onclick="saveFavorite()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            Favorite
+          </button>
         </div>
       </div>
 
-      <div class="fav-drawer">
-        <div class="col-header">
+      <div class="panel favorites-panel">
+        <div class="panel-header">
           <span>Saved Favorites</span>
-          <span id="savedCount">0</span>
+          <span id="savedCount" class="badge-count">0</span>
         </div>
         <ul class="fav-list" id="favList"></ul>
       </div>
@@ -321,7 +610,57 @@
 
 <script>
   const TAXONOMY = {
+    "Blues": [
+      "acoustic blues", "blues revival", "british blues", "canadian blues", "chicago blues", "classic blues",
+      "country blues", "delta blues", "detroit blues", "electric blues", "harmonica blues", "hill country blues",
+      "jump blues", "louisiana blues", "memphis blues", "modern blues", "new orleans blues", "piedmont blues",
+      "resorock", "st. louis blues", "swamp blues", "texas blues", "traditional blues",
+      "alabama blues", "atlanta blues", "austin blues", "barrelhouse blues", "birmingham blues",
+      "black cat blues", "bluegrass blues", "boogie blues", "chicago electric blues", "classic female blues",
+      "contemporary blues", "dark blues", "deep south blues", "delta slide blues", "dirty blues",
+      "early downhome blues", "east coast blues", "fingerpicking blues", "georgia blues", "gospel blues",
+      "hard blues", "hokum blues", "jug band blues", "kansas city blues", "modern electric blues",
+      "modern slide blues", "mississippi blues", "north mississippi hill country blues", "piano blues", "pre-war blues",
+      "ragtime blues", "rhythm blues", "roots blues", "shouter blues", "slide guitar blues",
+      "soul blues revival", "southern blues", "southside chicago blues", "texas electric blues", "urban blues",
+      "vaudeville blues", "vintage blues", "west coast blues", "whiskey blues", "white blues"
+    ],
+    "Classical & Ambient": [
+      "ambient", "avant-garde", "baroque", "cantata", "chamber orchestra", "choral", "classical era",
+      "contemporary classical", "early modern classical", "early music", "electroacoustic", "impressionism",
+      "medieval", "minimalism", "modern string quartet", "neoclassical", "opera", "orchestral",
+      "polyphony", "post-minimalism", "renaissance", "romantic era", "serialism", "sound art",
+      "spectralism", "twelve-tone",
+      "20th century classical", "acoustic ambient", "ambient drone classic", "ambient piano", "american contemporary classical",
+      "ancient music", "ballet", "baroque choir", "baroque violin", "british classical",
+      "canadian classical", "cello classical", "chamber choir", "chaconne", "cinematic classical",
+      "classical guitar", "classical piano", "concerto", "dark classical", "early baroque",
+      "english renaissance", "french impressionist classical", "french romantic", "gregorian chant", "harpsichord",
+      "italian baroque", "italian opera", "late romantic", "liturgical", "madrigal",
+      "microtonal classical", "minimalist piano", "modern choir", "modern composition", "neo-baroque",
+      "neo-romantic", "nordic classical", "organ classical", "overtone choir", "post-rock classical",
+      "requiem", "russian classical", "sacred choir", "sonata", "spanish classical",
+      "string orchestra", "symphony", "vocal classical", "vocal ensemble", "wind quintet"
+    ],
+    "Country": [
+      "alternative country", "australian country", "bakersfield sound", "bluegrass", "classic country",
+      "classic country pop", "country gospel", "country pop", "country rock", "cowboy western", "honky tonk",
+      "instrumental bluegrass", "nashville sound", "neo-traditional country", "outlaw country",
+      "progressive bluegrass", "red dirt", "texas country", "traditional bluegrass", "traditional country",
+      "truck-driving country", "western swing",
+      "alabama country", "americana country", "appalachian country", "arkansas country", "austin country",
+      "bluegrass gospel country", "bro country", "canadian country", "classic honky tonk", "classic outlaw",
+      "contemporary country", "country ballad", "country boogie", "country blues style", "country folk style",
+      "cowboy songs", "dark country", "deep traditional country", "early country", "female country",
+      "georgia country", "gospel bluegrass", "hard country", "indie country style", "kentucky country",
+      "lubbock sound", "modern country", "mountain music", "nashville sound classic", "neo-bluegrass",
+      "neo-honky tonk", "north carolina country", "oklahoma country", "outlaw country revival", "pacific northwest country",
+      "roots country", "rockabilly country", "sertanejo country", "southern gospel country", "tennessee country",
+      "texas honky tonk", "texas red dirt", "traditional country pop", "underground country", "vintage country",
+      "virginia country", "western country", "wyoming country"
+    ],
     "Electronic": [
+      "ambient 140", "modular bass", "neuro glitch hop", "organic bass", "space bass",
       "2-step", "acid house", "acid techno", "acid trance", "afro house", "amapiano",
       "ambient drone", "ambient techno", "autonomic", "baile funk", "balearic", "baltimore club",
       "bassline", "bass music", "big beat", "birmingham techno", "bleep techno", "booty bass",
@@ -355,98 +694,54 @@
       "techstep", "terrorcore", "trance", "tribal house", "trip hop", "tropical house",
       "uk bass", "uk drill instrumental", "uk funky", "uk garage", "uplifting trance",
       "vapor hop", "vaporwave", "vocal house", "vocal trance", "wave", "weightless",
-      "witch house", "wonky",
-      "acidcore", "aggrotech", "ambient dub", "ambient house", "bass house",
-      "berlin school", "breakstep", "chillstep", "clonk", "coldwave",
-      "cyberpunk", "dark ambient industrial", "darkcore", "deathstep", "darksynth",
-      "deep dubstep", "deep dnb", "deep tech", "digital hardcore electronic", "doomcore",
-      "drift phonk", "dubstep trap", "dutch house", "ebm industrial", "electro swing",
-      "frenchcore", "future rave", "glitch pop", "goa trance", "hardcore breaks",
-      "hardwave", "hi-tech psy", "hypnagogic pop", "industrial bass", "j-core",
-      "kuduro electronic", "liquid trap", "lo-fi hip hop electronic", "melodic dubstep", "microtonal electronic",
+      "witch house", "wonky", "acidcore", "aggrotech", "ambient dub", "ambient house", "bass house",
+      "berlin school", "breakstep", "chillstep", "clonk", "coldwave", "cyberpunk",
+      "dark ambient industrial", "darkcore", "deathstep", "darksynth", "deep dubstep",
+      "deep dnb", "deep tech", "digital hardcore electronic", "doomcore", "drift phonk",
+      "dubstep trap", "dutch house", "ebm industrial", "electro swing", "frenchcore",
+      "future rave", "glitch pop", "goa trance", "hardcore breaks", "hardwave",
+      "hi-tech psy", "hypnagogic pop", "industrial bass", "j-core", "kuduro electronic",
+      "liquid trap", "lo-fi hip hop electronic", "melodic dubstep", "microtonal electronic",
       "minimal wave", "modular synth", "mowest bass", "neotrance", "nintendocore",
       "organic house", "power noise", "prog psy", "progressive breaks", "psydub",
       "rhythmic noise", "slow house", "space ambient", "tearout", "tekno",
       "uk hard house", "vocal chillout", "wonky techno", "xtreme hardcore"
     ],
-    "Rock": [
-      "acid rock", "action rock", "alternative rock", "arena rock", "art rock", "australian rock",
-      "blues rock", "boogie rock", "classic canadian rock", "classic garage rock", "classic rock",
-      "cock rock", "college rock", "desert rock", "experimental rock", "funk rock", "garage rock",
-      "glam rock", "hard rock", "heartland rock", "heavy alternative", "instrumental rock", "j-rock",
-      "krautrock", "madchester", "math rock", "modern alternative rock", "neo-psychedelic", "noise rock",
-      "piano rock", "post-grunge", "post-rock", "power pop", "prog rock", "psychedelic rock", "pub rock",
-      "roots rock", "shoegaze", "slowcore", "soft rock", "southern rock", "space rock", "spaghetti western",
-      "stoner rock", "surf rock", "swamp rock", "symphonic rock", "yacht rock",
-      "acoustic rock", "afro rock", "albanian rock", "anatolian rock", "argentine rock",
-      "baroque rock", "beat music", "bubblegum rock", "brazilian rock", "canadian rock",
-      "celtic rock", "chilean rock", "christian rock", "cinematic rock", "comedy rock",
-      "cosmic rock", "danish rock", "dutch rock", "electronic rock style", "folk rock",
-      "german rock", "gothic rock", "heavy psych", "icelandic rock", "indian rock",
-      "italian progressive rock", "japanese psych rock", "latin rock", "lover's rock style", "mexican rock",
-      "motown rock", "neo-prog", "new wave rock", "norwegian rock", "occult rock",
-      "parisian rock", "polish rock", "pop rock", "raga rock", "rap rock",
-      "rock and roll", "rock en espanol", "rockabilly style", "russian rock", "scandinavian rock",
-      "spanish modern rock", "stoner psych", "swedish rock", "twee rock", "viking rock",
-      "vintage rock", "welsh rock"
+    "Folk & Roots": [
+      "american primitive", "americana", "appalachian folk", "cajun", "celtic", "celtic folk",
+      "contemporary folk", "corridos tumbados", "dark folk", "early american folk", "english folk",
+      "fiddle", "fingerstyle", "folk", "irish folk", "neofolk", "old-time", "progressive folk",
+      "quebecois", "sea shanty", "scottish folk", "traditional folk", "zydeco",
+      "acoustic folk", "alaskan folk", "alpine folk", "american folk revival", "anti-folk roots",
+      "australian folk", "balkan roots", "blue ridge folk", "british folk revival", "canadian folk",
+      "catalan folk", "celtic harp", "chamber folk", "creole roots", "danish folk",
+      "deep roots", "early folk", "finnish folk", "flemish folk", "french folk",
+      "galician folk", "german folk", "gothic folk", "greenlandic folk", "icelandic folk",
+      "indie folk roots", "italian folk", "klezmer roots", "labrador folk", "maritime folk",
+      "modern folk", "mountain folk", "new england folk", "nordic folk", "norwegian folk",
+      "ozark folk", "pacific folk", "polish folk", "portuguese folk", "russian folk",
+      "scandinavian folk", "shetland folk", "spanish folk", "swedish folk", "swiss folk",
+      "traditional celtic", "ukrainian folk", "welsh folk", "woodstock folk"
     ],
-    "Indie & Alternative": [
-      "alternative pop", "ambient pop", "anti-folk", "art pop", "australian indie", "baroque pop",
-      "bay area indie", "bedroom pop", "blackgaze", "brooklyn indie", "c86", "chamber pop",
-      "chillwave", "dunedin sound", "dream pop", "freak folk", "indie folk", "indie garage rock",
-      "indie pop", "indie rock", "indie surf", "lo-fi indie", "midwest emo", "neo-acoustic",
-      "noise pop", "paisley underground", "post-punk revival", "sadcore", "scenecore", "shimmer pop",
-      "twee pop", "underground power pop", "vapor pop",
-      "acoustic indie", "alt z", "alternative country indie", "alternative dance", "alternative emo",
-      "ambient indie", "athens indie", "austin indie", "brighton indie", "bristol indie",
-      "canadian indie", "charlotte indie", "chicago indie pop", "chill dream pop", "dark bedroom pop",
-      "dc indie", "denver indie", "dream pop revival", "english indie", "ethereal wave",
-      "experimental pop", "french indie", "garage pop", "german indie", "gothenburg indie",
-      "indie country", "indie emo", "indie dream pop", "indie fuzz", "indie psych",
-      "indie r&b", "indie shoegaze", "irish indie", "japanese indie", "k-indie",
-      "la indie", "leeds indie", "lo-fi dream pop", "manchester indie", "melbourne indie",
-      "neo-psychedelia pop", "new zealand indie", "nordic indie", "north carolina indie", "oakland indie",
-      "portland indie", "quebec indie", "scottish indie", "seattle indie", "slowcore indie",
-      "swedish indie", "toronto indie"
-    ],
-    "Punk & Hardcore": [
-      "anarcho-punk", "art punk", "australian garage punk", "celtic punk", "chaotic hardcore",
-      "cowpunk", "crust punk", "d-beat", "dance-punk", "deathrock", "digital hardcore", "early pop punk",
-      "emo", "emocore", "fast melodic punk", "folk punk", "garage punk", "gypsy punk", "hardcore punk",
-      "horror punk", "melodic hardcore", "mod revival", "no wave", "oi", "orgcore", "pop punk",
-      "post-hardcore", "post-punk", "powerviolence", "proto-punk", "psychobilly", "punk rock", "queercore",
-      "riot grrrl", "sasscore", "screamo", "skate punk", "street punk", "surf punk", "synthpunk", "thrashcore",
-      "80s hardcore", "action punk", "afropunk", "boston hardcore", "brazilian hardcore",
-      "california hardcore", "canadian punk", "chicago punk", "cleveland punk", "crossover thrash",
-      "crustcore", "dc hardcore", "death punk", "diy punk", "dutch punk",
-      "east coast punk", "electropunk", "finnish hardcore", "french punk", "german punk",
-      "glue punk", "goth punk", "grindpunk", "grungecore", "hardcore crossover",
-      "italian hardcore", "japanese hardcore", "latinx punk", "melodic punk", "midwest hardcore",
-      "minneapolis punk", "motorpunk", "new york hardcore", "noise hardcore", "northeastern punk",
-      "nwobhm punk", "pittsburgh punk", "post-emo", "punk blues", "rochester punk",
-      "russian punk", "scandi punk", "spanish punk", "straight edge", "swedish hardcore",
-      "tijuana punk", "uk 82", "uk hardcore", "youth crew"
-    ],
-    "Metal": [
-      "alternative metal", "atmospheric black metal", "black 'n' roll", "black metal", "brutal death metal",
-      "celtic metal", "christian metal", "crustcore", "cyber metal", "deathcore", "deathgrind",
-      "death metal", "death 'n' roll", "djent", "doom metal", "drone metal", "epic doom", "folk metal",
-      "funeral doom", "glam metal", "goregrind", "gothic metal", "grindcore", "groove metal", "heavy metal",
-      "industrial metal", "mathcore", "melodic black metal", "melodic death metal", "melodic metalcore",
-      "metalcore", "neoclassical metal", "neo-thrash", "nu metal", "nwobhm", "pagan black metal",
-      "pirate metal", "pornogrind", "post-metal", "power metal", "progressive death metal", "progressive metal",
-      "slam death metal", "sludge metal", "speed metal", "stoner metal", "symphonic black metal",
-      "symphonic deathcore", "symphonic metal", "technical death metal", "thrash metal", "viking metal", "war metal",
-      "avant-garde metal", "bay area thrash", "belgian metal", "blackened death metal", "blackened thrash",
-      "brazilian metal", "canadian metal", "cavernous death metal", "celtic black metal", "chilean metal",
-      "depressive black metal", "downtempo deathcore", "dungeon metal", "early black metal", "epic black metal",
-      "finnish death metal", "finnish metal", "florida death metal", "french black metal", "german metal",
-      "gorenoise", "greek metal", "icelandic black metal", "japanese metal", "medieval black metal",
-      "melodic thrash", "modern metal", "norwegian black metal", "old school death metal", "polish black metal",
-      "post-black metal", "progressive black metal", "raw black metal", "slavic metal", "south american death metal",
-      "stoner doom", "swedish death metal", "swedish metal", "swiss metal", "technical thrash",
-      "teutonic thrash", "traditional heavy metal", "true metal", "uk doom", "usbm",
-      "viking black metal", "warmetal style", "witch metal"
+    "Global & World": [
+      "afrobeats", "afro dancehall", "afro pop", "algerian chaabi", "anatolian rock", "arab pop",
+      "balkan brass", "bhangra", "bhangra fusion", "calypso", "cape verdean", "chaabi", "chutney",
+      "city pop", "classic bollywood", "desert blues", "deshi pop", "enka", "fado", "flamenco",
+      "flamenco nuevo", "genge", "ghanaian highlife", "gnawa", "gqom", "highlife", "j-pop",
+      "kayokyoku", "kizomba", "k-pop", "kuduro", "luk thung", "makossa", "maloya", "marrabenta",
+      "morna", "mpb", "punjabi pop", "qawwali", "rai", "rumba congolaise", "sega", "seggae",
+      "semba", "shibuya-kei", "singeli", "soukous", "sufi rock", "taarab", "tropicália",
+      "tuvan throat singing", "wassoulou", "ye-ye", "zouk",
+      "afro funk", "afrobeat classic", "albanian pop", "andean folklore", "arabic classical",
+      "armenian folk", "azerbaijani mugham", "balinese gamelan", "balkan folk", "bulgarian choir",
+      "carnatic", "celtic traditional", "chadian pop", "chin traditional", "dagestani folk",
+      "ethiopian jazz style", "fijian traditional", "georgian polyphony", "greek traditional", "haitian compas",
+      "hindustani classical", "inuit throat singing", "iranian traditional", "irish traditional", "javanese gamelan",
+      "klezmer", "korean sanjo", "korean trot", "kurdish folk", "malian blues",
+      "maori traditional", "mongolian throat singing", "moroccan gnawa", "nigerian juju", "okinawan traditional",
+      "persian classical", "polynesian traditional", "sardinian canto", "scottish traditional", "siberian folk",
+      "sitar classical", "sudan pop", "tibetan chant", "turkish classical", "uzbek folk",
+      "vietnamese ca tru", "zimbabwean chimurenga"
     ],
     "Hip Hop": [
       "abstract hip hop", "alternative hip hop", "atlanta bass", "atlanta trap", "boom bap", "bronx drill",
@@ -469,60 +764,23 @@
       "queens rap", "reggaeton rap", "sad rap", "screamo rap", "soundbutt rap",
       "spanish hip hop", "toronto rap", "trap soul", "triad rap", "underground rap"
     ],
-    "R&B & Soul": [
-      "alternative r&b", "blue-eyed soul", "brown eyed soul", "chicago soul", "classic soul",
-      "contemporary r&b", "deep soul", "disco", "doo-wop", "funk", "memphis soul", "modern funk",
-      "motown", "neo soul", "new jack swing", "northern soul", "philly soul", "post-disco soul",
-      "psychedelic soul", "quiet storm", "retro soul", "rhythm and blues", "smooth soul", "soul",
-      "soul blues", "southern soul", "swamp pop", "urban contemporary",
-      "acoustic soul", "afro r&b", "alt r&b", "australian r&b", "bay area r&b",
-      "boogie funk", "canadian contemporary r&b", "chicano soul", "chill r&b", "classic r&b",
-      "contemporary soul", "deep funk", "detroit soul", "disco soul", "electro soul",
-      "english soul", "french r&b", "funk soul", "future soul", "gospel r&b",
-      "gospel soul", "indie r&b style", "indie soul", "instrumental soul", "japanese r&b",
-      "k-r&b", "latin soul", "lo-fi r&b", "louisiana soul", "melodic soul",
-      "miami soul", "modern r&b", "modern soul", "muscle shoals soul", "neo r&b",
-      "new orleans funk", "new orleans soul", "nordic r&b", "philly sound", "p-funk",
-      "reggae soul", "retro r&b", "roots soul", "smooth r&b", "soul jazz vocal",
-      "south african r&b", "stax soul", "sweet soul", "uk contemporary r&b", "vintage r&b"
-    ],
-    "Latin": [
-      "bachata", "bachata dominicana", "bolero", "boogaloo", "chicha", "colombian cumbia", "corrido",
-      "cuarteto", "cumbia", "cumbia 420", "cumbia argentina", "cumbia sonidera", "cumbia villera",
-      "danzon", "festejo", "forro", "huayno", "latin alternative", "latin afrobeat", "latin jazz",
-      "latin pop", "latin rock", "mambo", "mariachi", "merengue", "merengue tipico", "norteno",
-      "nuevo tango", "pachanga", "pagode", "plena", "psychedelic cumbia", "ranchera", "reggaeton",
-      "salsa", "salsa choke", "salsa dura", "samba", "samba-reggae", "sertanejo", "son cubano",
-      "tango", "tejano", "timba", "trap latino", "trova", "vallenato",
-      "afro-peruvian", "axe", "bambuco", "bolero son", "bomba",
-      "bosanova style", "brazilian funk", "cancion melodica", "cha cha cha", "choro",
-      "colombian salsa", "copla", "cumbia chilena", "cumbia funk", "cumbia sonorense",
-      "flamenco pop", "guajira", "jarocho", "latin ballad", "latin funk",
-      "latin ska", "llanera", "mambo funk", "maracatu", "mexican son",
-      "milonga", "musica andina", "musica criolla", "musica popular brasileira", "nueva cancion",
-      "peruvian cumbia", "puerto rican salsa", "punta", "rock en espanol latin", "salsa romantica",
-      "samba de raiz", "samba pagoda", "son jarocho", "son montuno", "sonora cumbia",
-      "tropical latin", "trova cubana", "vallenato romantico", "venezuelan traditional", "zouk latino"
-    ],
-    "Global & World": [
-      "afrobeats", "afro dancehall", "afro pop", "algerian chaabi", "anatolian rock", "arab pop",
-      "balkan brass", "bhangra", "bhangra fusion", "calypso", "cape verdean", "chaabi", "chutney",
-      "city pop", "classic bollywood", "desert blues", "deshi pop", "enka", "fado", "flamenco",
-      "flamenco nuevo", "genge", "ghanaian highlife", "gnawa", "gqom", "highlife", "j-pop",
-      "kayokyoku", "kizomba", "k-pop", "kuduro", "luk thung", "makossa", "maloya", "marrabenta",
-      "morna", "mpb", "punjabi pop", "qawwali", "rai", "rumba congolaise", "sega", "seggae",
-      "semba", "shibuya-kei", "singeli", "soukous", "sufi rock", "taarab", "tropicália",
-      "tuvan throat singing", "wassoulou", "ye-ye", "zouk",
-      "afro funk", "afrobeat classic", "albanian pop", "andean folklore", "arabic classical",
-      "armenian folk", "azerbaijani mugham", "balinese gamelan", "balkan folk", "bulgarian choir",
-      "carnatic", "celtic traditional", "chadian pop", "chin traditional", "dagestani folk",
-      "ethiopian jazz style", "fijian traditional", "georgian polyphony", "greek traditional", "haitian compas",
-      "hindustani classical", "inuit throat singing", "iranian traditional", "irish traditional", "javanese gamelan",
-      "klezmer", "korean sanjo", "korean trot", "kurdish folk", "malian blues",
-      "maori traditional", "mongolian throat singing", "moroccan gnawa", "nigerian juju", "okinawan traditional",
-      "persian classical", "polynesian traditional", "sardinian canto", "scottish traditional", "siberian folk",
-      "sitar classical", "sudan pop", "tibetan chant", "turkish classical", "uzbek folk",
-      "vietnamese ca tru", "zimbabwean chimurenga"
+    "Indie & Alternative": [
+      "alternative pop", "ambient pop", "anti-folk", "art pop", "australian indie", "baroque pop",
+      "bay area indie", "bedroom pop", "blackgaze", "brooklyn indie", "c86", "chamber pop",
+      "chillwave", "dunedin sound", "dream pop", "freak folk", "indie folk", "indie garage rock",
+      "indie pop", "indie rock", "indie surf", "lo-fi indie", "midwest emo", "neo-acoustic",
+      "noise pop", "paisley underground", "post-punk revival", "sadcore", "scenecore", "shimmer pop",
+      "twee pop", "underground power pop", "vapor pop", "acoustic indie", "alt z",
+      "alternative country indie", "alternative dance", "alternative emo", "ambient indie",
+      "athens indie", "austin indie", "brighton indie", "bristol indie", "canadian indie",
+      "charlotte indie", "chicago indie pop", "chill dream pop", "dark bedroom pop", "dc indie",
+      "denver indie", "dream pop revival", "english indie", "ethereal wave", "experimental pop",
+      "french indie", "garage pop", "german indie", "gothenburg indie", "indie country",
+      "indie emo", "indie dream pop", "indie fuzz", "indie psych", "indie r&b",
+      "indie shoegaze", "irish indie", "japanese indie", "k-indie", "la indie",
+      "leeds indie", "lo-fi dream pop", "manchester indie", "melbourne indie", "neo-psychedelia pop",
+      "new zealand indie", "nordic indie", "north carolina indie", "oakland indie", "portland indie",
+      "quebec indie", "scottish indie", "seattle indie", "slowcore indie", "swedish indie", "toronto indie"
     ],
     "Jazz": [
       "acid jazz", "african-american jazz", "afro-cuban jazz", "asian american jazz", "avant-garde jazz",
@@ -543,53 +801,79 @@
       "south african jazz", "spanish jazz", "swedish jazz", "swiss jazz", "third stream",
       "tokyo jazz", "trad swing", "vintage jazz", "yugoslav jazz"
     ],
-    "Blues": [
-      "acoustic blues", "blues revival", "british blues", "canadian blues", "chicago blues", "classic blues",
-      "country blues", "delta blues", "detroit blues", "electric blues", "harmonica blues", "hill country blues",
-      "jump blues", "louisiana blues", "memphis blues", "modern blues", "new orleans blues", "piedmont blues",
-      "resorock", "st. louis blues", "swamp blues", "texas blues", "traditional blues",
-      "alabama blues", "atlanta blues", "austin blues", "barrelhouse blues", "birmingham blues",
-      "black cat blues", "bluegrass blues", "boogie blues", "chicago electric blues", "classic female blues",
-      "contemporary blues", "dark blues", "deep south blues", "delta slide blues", "dirty blues",
-      "early downhome blues", "east coast blues", "fingerpicking blues", "georgia blues", "gospel blues",
-      "hard blues", "hokum blues", "jug band blues", "kansas city blues", "modern electric blues",
-      "modern slide blues", "mississippi blues", "north mississippi hill country blues", "piano blues", "pre-war blues",
-      "ragtime blues", "rhythm blues", "roots blues", "shouter blues", "slide guitar blues",
-      "soul blues revival", "southern blues", "southside chicago blues", "texas electric blues", "urban blues",
-      "vaudeville blues", "vintage blues", "west coast blues", "whiskey blues", "white blues"
+    "Latin": [
+      "bachata", "bachata dominicana", "bolero", "boogaloo", "chicha", "colombian cumbia", "corrido",
+      "cuarteto", "cumbia", "cumbia 420", "cumbia argentina", "cumbia sonidera", "cumbia villera",
+      "danzon", "festejo", "forro", "huayno", "latin alternative", "latin afrobeat", "latin jazz",
+      "latin pop", "latin rock", "mambo", "mariachi", "merengue", "merengue tipico", "norteno",
+      "nuevo tango", "pachanga", "pagode", "plena", "psychedelic cumbia", "ranchera", "reggaeton",
+      "salsa", "salsa choke", "salsa dura", "samba", "samba-reggae", "sertanejo", "son cubano",
+      "tango", "tejano", "timba", "trap latino", "trova", "vallenato",
+      "afro-peruvian", "axe", "bambuco", "bolero son", "bomba",
+      "bosanova style", "brazilian funk", "cancion melodica", "cha cha cha", "choro",
+      "colombian salsa", "copla", "cumbia chilena", "cumbia funk", "cumbia sonorense",
+      "flamenco pop", "guajira", "jarocho", "latin ballad", "latin funk",
+      "latin ska", "llanera", "mambo funk", "maracatu", "mexican son",
+      "milonga", "musica andina", "musica criolla", "musica popular brasileira", "nueva cancion",
+      "peruvian cumbia", "puerto rican salsa", "punta", "rock en espanol latin", "salsa romantica",
+      "samba de raiz", "samba pagoda", "son jarocho", "son montuno", "sonora cumbia",
+      "tropical latin", "trova cubana", "vallenato romantico", "venezuelan traditional", "zouk latino"
     ],
-    "Country": [
-      "alternative country", "australian country", "bakersfield sound", "bluegrass", "classic country",
-      "classic country pop", "country gospel", "country pop", "country rock", "cowboy western", "honky tonk",
-      "instrumental bluegrass", "nashville sound", "neo-traditional country", "outlaw country",
-      "progressive bluegrass", "red dirt", "texas country", "traditional bluegrass", "traditional country",
-      "truck-driving country", "western swing",
-      "alabama country", "americana country", "appalachian country", "arkansas country", "austin country",
-      "bluegrass gospel country", "bro country", "canadian country", "classic honky tonk", "classic outlaw",
-      "contemporary country", "country ballad", "country boogie", "country blues style", "country folk style",
-      "cowboy songs", "dark country", "deep traditional country", "early country", "female country",
-      "georgia country", "gospel bluegrass", "hard country", "indie country style", "kentucky country",
-      "lubbock sound", "modern country", "mountain music", "nashville sound classic", "neo-bluegrass",
-      "neo-honky tonk", "north carolina country", "oklahoma country", "outlaw country revival", "pacific northwest country",
-      "roots country", "rockabilly country", "sertanejo country", "southern gospel country", "tennessee country",
-      "texas honky tonk", "texas red dirt", "traditional country pop", "underground country", "vintage country",
-      "virginia country", "western country", "wyoming country"
+    "Metal": [
+      "alternative metal", "atmospheric black metal", "black 'n' roll", "black metal", "brutal death metal",
+      "celtic metal", "christian metal", "crustcore", "cyber metal", "deathcore", "deathgrind",
+      "death metal", "death 'n' roll", "djent", "doom metal", "drone metal", "epic doom", "folk metal",
+      "funeral doom", "glam metal", "goregrind", "gothic metal", "grindcore", "groove metal", "heavy metal",
+      "industrial metal", "mathcore", "melodic black metal", "melodic death metal", "melodic metalcore",
+      "metalcore", "neoclassical metal", "neo-thrash", "nu metal", "nwobhm", "pagan black metal",
+      "pirate metal", "pornogrind", "post-metal", "power metal", "progressive death metal", "progressive metal",
+      "slam death metal", "sludge metal", "speed metal", "stoner metal", "symphonic black metal",
+      "symphonic deathcore", "symphonic metal", "technical death metal", "thrash metal", "viking metal", "war metal",
+      "avant-garde metal", "bay area thrash", "belgian metal", "blackened death metal", "blackened thrash",
+      "brazilian metal", "canadian metal", "cavernous death metal", "celtic black metal", "chilean metal",
+      "depressive black metal", "downtempo deathcore", "dungeon metal", "early black metal", "epic black metal",
+      "finnish death metal", "finnish metal", "florida death metal", "french black metal", "german metal",
+      "gorenoise", "greek metal", "icelandic black metal", "japanese metal", "medieval black metal",
+      "melodic thrash", "modern metal", "norwegian black metal", "old school death metal", "polish black metal",
+      "post-black metal", "progressive black metal", "raw black metal", "slavic metal", "south american death metal",
+      "stoner doom", "swedish death metal", "swedish metal", "swiss metal", "technical thrash",
+      "teutonic thrash", "traditional heavy metal", "true metal", "uk doom", "usbm",
+      "viking black metal", "warmetal style", "witch metal"
     ],
-    "Folk & Roots": [
-      "american primitive", "americana", "appalachian folk", "cajun", "celtic", "celtic folk",
-      "contemporary folk", "corridos tumbados", "dark folk", "early american folk", "english folk",
-      "fiddle", "fingerstyle", "folk", "irish folk", "neofolk", "old-time", "progressive folk",
-      "quebecois", "sea shanty", "scottish folk", "traditional folk", "zydeco",
-      "acoustic folk", "alaskan folk", "alpine folk", "american folk revival", "anti-folk roots",
-      "australian folk", "balkan roots", "blue ridge folk", "british folk revival", "canadian folk",
-      "catalan folk", "celtic harp", "chamber folk", "creole roots", "danish folk",
-      "deep roots", "early folk", "finnish folk", "flemish folk", "french folk",
-      "galician folk", "german folk", "gothic folk", "greenlandic folk", "icelandic folk",
-      "indie folk roots", "italian folk", "klezmer roots", "labrador folk", "maritime folk",
-      "modern folk", "mountain folk", "new england folk", "nordic folk", "norwegian folk",
-      "ozark folk", "pacific folk", "polish folk", "portuguese folk", "russian folk",
-      "scandinavian folk", "shetland folk", "spanish folk", "swedish folk", "swiss folk",
-      "traditional celtic", "ukrainian folk", "welsh folk", "woodstock folk"
+    "Punk & Hardcore": [
+      "anarcho-punk", "art punk", "australian garage punk", "celtic punk", "chaotic hardcore",
+      "cowpunk", "crust punk", "d-beat", "dance-punk", "deathrock", "digital hardcore", "early pop punk",
+      "emo", "emocore", "fast melodic punk", "folk punk", "garage punk", "gypsy punk", "hardcore punk",
+      "horror punk", "melodic hardcore", "mod revival", "no wave", "oi", "orgcore", "pop punk",
+      "post-hardcore", "post-punk", "powerviolence", "proto-punk", "psychobilly", "punk rock", "queercore",
+      "riot grrrl", "sasscore", "screamo", "skate punk", "street punk", "surf punk", "synthpunk", "thrashcore",
+      "80s hardcore", "action punk", "afropunk", "boston hardcore", "brazilian hardcore",
+      "california hardcore", "canadian punk", "chicago punk", "cleveland punk", "crossover thrash",
+      "crustcore", "dc hardcore", "death punk", "diy punk", "dutch punk",
+      "east coast punk", "electropunk", "finnish hardcore", "french punk", "german punk",
+      "glue punk", "goth punk", "grindpunk", "grungecore", "hardcore crossover",
+      "italian hardcore", "japanese hardcore", "latinx punk", "melodic punk", "midwest hardcore",
+      "minneapolis punk", "motorpunk", "new york hardcore", "noise hardcore", "northeastern punk",
+      "nwobhm punk", "pittsburgh punk", "post-emo", "punk blues", "rochester punk",
+      "russian punk", "scandi punk", "spanish punk", "straight edge", "swedish hardcore",
+      "tijuana punk", "uk 82", "uk hardcore", "youth crew"
+    ],
+    "R&B & Soul": [
+      "alternative r&b", "blue-eyed soul", "brown eyed soul", "chicago soul", "classic soul",
+      "contemporary r&b", "deep soul", "disco", "doo-wop", "funk", "memphis soul", "modern funk",
+      "motown", "neo soul", "new jack swing", "northern soul", "philly soul", "post-disco soul",
+      "psychedelic soul", "quiet storm", "retro soul", "rhythm and blues", "smooth soul", "soul",
+      "soul blues", "southern soul", "swamp pop", "urban contemporary",
+      "acoustic soul", "afro r&b", "alt r&b", "australian r&b", "bay area r&b",
+      "boogie funk", "canadian contemporary r&b", "chicano soul", "chill r&b", "classic r&b",
+      "contemporary soul", "deep funk", "detroit soul", "disco soul", "electro soul",
+      "english soul", "french r&b", "funk soul", "future soul", "gospel r&b",
+      "gospel soul", "indie r&b style", "indie soul", "instrumental soul", "japanese r&b",
+      "k-r&b", "latin soul", "lo-fi r&b", "louisiana soul", "melodic soul",
+      "miami soul", "modern r&b", "modern soul", "muscle shoals soul", "neo r&b",
+      "new orleans funk", "new orleans soul", "nordic r&b", "philly sound", "p-funk",
+      "reggae soul", "retro r&b", "roots soul", "smooth r&b", "soul jazz vocal",
+      "south african r&b", "stax soul", "sweet soul", "uk contemporary r&b", "vintage r&b"
     ],
     "Reggae & Dub": [
       "2 tone", "dancehall", "dub", "dub poetry", "lovers rock", "mento", "modern reggae",
@@ -606,23 +890,36 @@
       "spanish reggae", "steppers dub", "swedish reggae", "uk dancehall", "uk roots reggae",
       "vocal dub", "vintage ska", "warm reggae", "world reggae"
     ],
-    "Classical & Ambient": [
-      "ambient", "avant-garde", "baroque", "cantata", "chamber orchestra", "choral", "classical era",
-      "contemporary classical", "early modern classical", "early music", "electroacoustic", "impressionism",
-      "medieval", "minimalism", "modern string quartet", "neoclassical", "opera", "orchestral",
-      "polyphony", "post-minimalism", "renaissance", "romantic era", "serialism", "sound art",
-      "spectralism", "twelve-tone",
-      "20th century classical", "acoustic ambient", "ambient drone classic", "ambient piano", "american contemporary classical",
-      "ancient music", "ballet", "baroque choir", "baroque violin", "british classical",
-      "canadian classical", "cello classical", "chamber choir", "chaconne", "cinematic classical",
-      "classical guitar", "classical piano", "concerto", "dark classical", "early baroque",
-      "english renaissance", "french impressionist classical", "french romantic", "gregorian chant", "harpsichord",
-      "italian baroque", "italian opera", "late romantic", "liturgical", "madrigal",
-      "microtonal classical", "minimalist piano", "modern choir", "modern composition", "neo-baroque",
-      "neo-romantic", "nordic classical", "organ classical", "overtone choir", "post-rock classical",
-      "requiem", "russian classical", "sacred choir", "sonata", "spanish classical",
-      "string orchestra", "symphony", "vocal classical", "vocal ensemble", "wind quintet"
+    "Rock": [
+      "acid rock", "action rock", "alternative rock", "arena rock", "art rock", "australian rock",
+      "blues rock", "boogie rock", "classic canadian rock", "classic garage rock", "classic rock",
+      "cock rock", "college rock", "desert rock", "experimental rock", "funk rock", "garage rock",
+      "glam rock", "hard rock", "heartland rock", "heavy alternative", "instrumental rock", "j-rock",
+      "krautrock", "madchester", "math rock", "modern alternative rock", "neo-psychedelic", "noise rock",
+      "piano rock", "post-grunge", "post-rock", "power pop", "prog rock", "psychedelic rock", "pub rock",
+      "roots rock", "shoegaze", "slowcore", "soft rock", "southern rock", "space rock", "spaghetti western",
+      "stoner rock", "surf rock", "swamp rock", "symphonic rock", "yacht rock", "acoustic rock",
+      "afro rock", "albanian rock", "anatolian rock", "argentine rock", "baroque rock",
+      "beat music", "bubblegum rock", "brazilian rock", "canadian rock", "celtic rock",
+      "chilean rock", "christian rock", "cinematic rock", "comedy rock", "cosmic rock",
+      "danish rock", "dutch rock", "electronic rock style", "folk rock", "german rock",
+      "gothic rock", "heavy psych", "icelandic rock", "indian rock", "italian progressive rock",
+      "japanese psych rock", "latin rock", "lover's rock style", "mexican rock", "motown rock",
+      "neo-prog", "new wave rock", "norwegian rock", "occult rock", "parisian rock",
+      "polish rock", "pop rock", "raga rock", "rap rock", "rock and roll", "rock en espanol",
+      "rockabilly style", "russian rock", "scandinavian rock", "spanish modern rock",
+      "stoner psych", "swedish rock", "twee rock", "viking rock", "vintage rock", "welsh rock"
     ]
+  };
+
+  // Static fallback discovery pools in case genre_map.json is loading or offline
+  let GENRE_SEARCH_MAP = {
+    "organic bass": ["Of The Trees", "CharlesTheFirst", "Supertask", "CloZee", "Goopsteppa", "Chmura", "Esseks", "Player Dave"],
+    "space bass": ["Liquid Stranger", "LSDREAM", "Peekaboo", "Inzo", "Ravenscoon", "Mersiv", "G-Rex", "Zingara"],
+    "modular bass": ["G Jones", "Eprom", "Bleep Bloop", "Chee", "Shades", "Alix Perez", "IMANU", "Ivy Lab"],
+    "ambient 140": ["Kahn", "Alix Perez", "Ternion Sound", "Truth", "Commodo", "Biome", "J:Kenzo", "Distinct Motive"],
+    "neuro glitch hop": ["Tipper", "Detox Unit", "Kursa", "Seppa", "Resonant Language", "Jade Cicada", "Spoonbill", "Culprate"],
+    "downtempo bass": ["Emancipator", "Tor", "Bluetech", "Tycho", "Bonobo", "Frameworks", "Random Rab", "Desert Dwellers"]
   };
 
   let ALL_TAGS = [];
@@ -631,25 +928,80 @@
   let currentTrack = null;
   const playHistory = [];
 
+  const player = document.getElementById("player");
+  const progressFill = document.getElementById("progressFill");
+  const currTime = document.getElementById("currTime");
+  const durTime = document.getElementById("durTime");
+  const coverArt = document.getElementById("coverArt");
+
+  player.addEventListener("timeupdate", () => {
+    if (player.duration) {
+      const pct = (player.currentTime / player.duration) * 100;
+      progressFill.style.width = pct + "%";
+      currTime.textContent = formatTime(player.currentTime);
+      durTime.textContent = formatTime(player.duration);
+    }
+  });
+
+  player.addEventListener("play", () => coverArt.classList.add("spinning"));
+  player.addEventListener("pause", () => coverArt.classList.remove("spinning"));
+  player.addEventListener("ended", () => {
+    coverArt.classList.remove("spinning");
+    progressFill.style.width = "0%";
+  });
+
+  function formatTime(s) {
+    const min = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  }
+
+  function seekAudio(e) {
+    if (!player.duration) return;
+    const bar = document.getElementById("progressBar");
+    const rect = bar.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const pct = clickX / rect.width;
+    player.currentTime = pct * player.duration;
+  }
+
+  async function loadAutomatedGenreMap() {
+    try {
+      const res = await fetch('./genre_map.json');
+      if (res.ok) {
+        const liveMap = await res.json();
+        GENRE_SEARCH_MAP = Object.assign({}, GENRE_SEARCH_MAP, liveMap);
+        console.log("Daily automated genre pool active:", Object.keys(liveMap).length, "tags updated");
+      }
+    } catch {
+      console.warn("Operating on local discovery pools.");
+    }
+  }
+
   function initData() {
     ALL_TAGS = [];
     Object.keys(TAXONOMY).forEach(k => {
+      TAXONOMY[k].sort((a, b) => a.localeCompare(b));
       ALL_TAGS = ALL_TAGS.concat(TAXONOMY[k]);
     });
-    document.getElementById("loadStatus").textContent = `${ALL_TAGS.length} Microgenres Active`;
+    ALL_TAGS.sort((a, b) => a.localeCompare(b));
+    
+    document.getElementById("loadStatus").textContent = `${ALL_TAGS.length} Subgenres`;
     renderFamilies();
     renderSubgenres();
+    loadAutomatedGenreMap();
   }
 
   function renderFamilies() {
     const list = document.getElementById("familyList");
     list.innerHTML = "";
-    const families = Object.keys(TAXONOMY);
+    
+    const families = Object.keys(TAXONOMY).sort((a, b) => a.localeCompare(b));
     document.getElementById("totalFamilies").textContent = families.length;
 
     const allLi = document.createElement("li");
-    allLi.className = `parent-item ${activeFamily === 'All' ? 'active' : ''}`;
-    allLi.innerHTML = `<span>All Microgenres</span><span class="count-tag">${ALL_TAGS.length}</span>`;
+    allLi.className = `family-item ${activeFamily === 'All' ? 'active' : ''}`;
+    allLi.innerHTML = `<span>All Microgenres</span><span class="badge-count">${ALL_TAGS.length}</span>`;
     allLi.onclick = () => {
       activeFamily = 'All';
       document.getElementById("globalSearch").value = "";
@@ -661,8 +1013,8 @@
     families.forEach(name => {
       const count = TAXONOMY[name].length;
       const li = document.createElement("li");
-      li.className = `parent-item ${name === activeFamily ? 'active' : ''}`;
-      li.innerHTML = `<span>${name}</span><span class="count-tag">${count}</span>`;
+      li.className = `family-item ${name === activeFamily ? 'active' : ''}`;
+      li.innerHTML = `<span>${name}</span><span class="badge-count">${count}</span>`;
       li.onclick = () => {
         activeFamily = name;
         document.getElementById("globalSearch").value = "";
@@ -678,7 +1030,7 @@
     const query = document.getElementById("globalSearch").value.trim().toLowerCase();
     grid.innerHTML = "";
 
-    document.getElementById("activeFamilyTitle").textContent = query ? `Search: "${query}"` : activeFamily;
+    document.getElementById("activeFamilyTitle").textContent = query ? `Matching "${query}"` : activeFamily;
 
     let tags = [];
     if (query) {
@@ -689,11 +1041,12 @@
       tags = TAXONOMY[activeFamily] || [];
     }
 
+    tags = [...tags].sort((a, b) => a.localeCompare(b));
     document.getElementById("subgenreCountBadge").textContent = `${tags.length}`;
 
     tags.forEach(tag => {
       const chip = document.createElement("div");
-      chip.className = `sub-chip ${tag === activeSubgenre ? 'active' : ''}`;
+      chip.className = `sub-pill ${tag === activeSubgenre ? 'active' : ''}`;
       chip.textContent = tag;
       chip.onclick = () => selectAndPlay(tag);
       grid.appendChild(chip);
@@ -740,17 +1093,29 @@
     renderSubgenres();
 
     document.getElementById("nowPlayingGenreBadge").textContent = genre;
-    document.getElementById("songTitle").textContent = "Locating track...";
-    document.getElementById("songArtist").textContent = `Searching ${genre}...`;
+    document.getElementById("songTitle").textContent = "Spinning roulette...";
+    document.getElementById("songArtist").textContent = `Querying ${genre}`;
 
     try {
-      const queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(genre)}&media=music&entity=song&limit=200`;
+      let targetQuery = genre;
+      let attributeParam = "";
+      const mapped = GENRE_SEARCH_MAP[genre];
+
+      if (Array.isArray(mapped) && mapped.length > 0) {
+        // Randomly choose from the verified seed pool and lock query to artistTerm
+        targetQuery = mapped[Math.floor(Math.random() * mapped.length)];
+        attributeParam = "&attribute=artistTerm";
+      } else if (typeof mapped === "string") {
+        targetQuery = mapped;
+      }
+
+      const queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(targetQuery)}${attributeParam}&media=music&entity=song&limit=200`;
       const data = await fetchJsonp(queryUrl);
       const viable = data.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
 
       if (!viable.length) {
-        document.getElementById("songTitle").textContent = "No sample found";
-        document.getElementById("songArtist").textContent = "Try rerolling or pick another tag";
+        document.getElementById("songTitle").textContent = "Zero samples found";
+        document.getElementById("songArtist").textContent = "Try rerolling or select another genre";
         return;
       }
 
@@ -770,15 +1135,14 @@
 
       document.getElementById("songTitle").textContent = currentTrack.title;
       document.getElementById("songArtist").textContent = currentTrack.artist;
-      document.getElementById("coverArt").src = currentTrack.cover;
+      coverArt.src = currentTrack.cover;
 
-      const player = document.getElementById("player");
       player.src = currentTrack.previewUrl;
       player.play().catch(() => {});
     } catch (err) {
       console.error(err);
-      document.getElementById("songTitle").textContent = "Search Error";
-      document.getElementById("songArtist").textContent = "Try clicking another genre";
+      document.getElementById("songTitle").textContent = "Connection issue";
+      document.getElementById("songArtist").textContent = "Check network or pick another tag";
     }
   }
 
@@ -788,23 +1152,23 @@
 
   function saveFavorite() {
     if (!currentTrack) return;
-    const favs = JSON.parse(localStorage.getItem("everynoise_favs") || "[]");
+    const favs = JSON.parse(localStorage.getItem("earworm_favs") || "[]");
     if (!favs.some(f => f.id === currentTrack.id)) {
       favs.unshift(currentTrack);
-      localStorage.setItem("everynoise_favs", JSON.stringify(favs));
+      localStorage.setItem("earworm_favs", JSON.stringify(favs));
       renderFavorites();
     }
   }
 
   function removeFavorite(id) {
-    let favs = JSON.parse(localStorage.getItem("everynoise_favs") || "[]");
+    let favs = JSON.parse(localStorage.getItem("earworm_favs") || "[]");
     favs = favs.filter(f => f.id !== id);
-    localStorage.setItem("everynoise_favs", JSON.stringify(favs));
+    localStorage.setItem("earworm_favs", JSON.stringify(favs));
     renderFavorites();
   }
 
   function renderFavorites() {
-    const favs = JSON.parse(localStorage.getItem("everynoise_favs") || "[]");
+    const favs = JSON.parse(localStorage.getItem("earworm_favs") || "[]");
     const container = document.getElementById("favList");
     document.getElementById("savedCount").textContent = favs.length;
     container.innerHTML = "";
@@ -819,20 +1183,20 @@
       const appleUrl = t.appleUrl;
 
       const li = document.createElement("li");
-      li.className = "fav-item";
+      li.className = "fav-card";
       li.innerHTML = `
-        <img src="${t.cover}" alt="cover" />
-        <div class="fav-meta">
-          <div><strong>${t.title}</strong></div>
-          <div style="color:var(--muted)">${t.artist} &bull; <span style="color:var(--primary)">${t.genre}</span></div>
+        <img src="${t.cover}" alt="cover" class="fav-thumb" />
+        <div class="fav-info">
+          <div class="fav-track-title">${t.title}</div>
+          <div class="fav-track-artist">${t.artist} &bull; <span style="color:var(--primary)">${t.genre}</span></div>
           <div class="stream-badges">
             <a href="${spotifyUrl}" target="_blank" rel="noreferrer" class="badge-btn badge-spotify">Spotify</a>
             <a href="${ytMusicUrl}" target="_blank" rel="noreferrer" class="badge-btn badge-ytmusic">YT Music</a>
-            <a href="${ytVideoUrl}" target="_blank" rel="noreferrer" class="badge-btn badge-ytvideo">Music Video</a>
-            <a href="${appleUrl}" target="_blank" rel="noreferrer" class="badge-btn badge-apple">Apple Music</a>
+            <a href="${ytVideoUrl}" target="_blank" rel="noreferrer" class="badge-btn badge-ytvideo">Video</a>
+            <a href="${appleUrl}" target="_blank" rel="noreferrer" class="badge-btn badge-apple">Apple</a>
           </div>
         </div>
-        <button class="delete-btn" title="Remove from favorites" onclick="removeFavorite(${t.id})">&times;</button>
+        <button class="delete-btn" title="Remove" onclick="removeFavorite(${t.id})">&times;</button>
       `;
       container.appendChild(li);
     });
