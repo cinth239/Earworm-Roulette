@@ -365,13 +365,13 @@
     }
 
     .deck-actions {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
       width: 100%;
     }
 
     .btn {
-      flex: 1;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--surface-border);
       color: white;
@@ -578,6 +578,16 @@
         </div>
 
         <div class="deck-actions">
+          <button class="btn" id="playPauseBtn" onclick="togglePlay()">
+            <svg id="playIcon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span id="playPauseText">Play</span>
+          </button>
+          
+          <button class="btn" onclick="stopAudio()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
+            Stop
+          </button>
+          
           <button class="btn" onclick="rerollTrack()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 3 21 3 21 8"></polyline>
@@ -586,14 +596,14 @@
               <line x1="15" y1="15" x2="21" y2="21"></line>
               <line x1="4" y1="4" x2="9" y2="9"></line>
             </svg>
-            Spin Random
+            Spin
           </button>
           
           <button class="btn btn-fav" onclick="saveFavorite()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
-            Favorite
+            Fav
           </button>
         </div>
       </div>
@@ -611,314 +621,338 @@
 <script>
   const TAXONOMY = {
     "Blues": [
-      "acoustic blues", "blues revival", "british blues", "canadian blues", "chicago blues", "classic blues",
-      "country blues", "delta blues", "detroit blues", "electric blues", "harmonica blues", "hill country blues",
-      "jump blues", "louisiana blues", "memphis blues", "modern blues", "new orleans blues", "piedmont blues",
-      "resorock", "st. louis blues", "swamp blues", "texas blues", "traditional blues",
-      "alabama blues", "atlanta blues", "austin blues", "barrelhouse blues", "birmingham blues",
-      "black cat blues", "bluegrass blues", "boogie blues", "chicago electric blues", "classic female blues",
-      "contemporary blues", "dark blues", "deep south blues", "delta slide blues", "dirty blues",
-      "early downhome blues", "east coast blues", "fingerpicking blues", "georgia blues", "gospel blues",
-      "hard blues", "hokum blues", "jug band blues", "kansas city blues", "modern electric blues",
-      "modern slide blues", "mississippi blues", "north mississippi hill country blues", "piano blues", "pre-war blues",
-      "ragtime blues", "rhythm blues", "roots blues", "shouter blues", "slide guitar blues",
-      "soul blues revival", "southern blues", "southside chicago blues", "texas electric blues", "urban blues",
-      "vaudeville blues", "vintage blues", "west coast blues", "whiskey blues", "white blues"
+      "acoustic blues", "alabama blues", "atlanta blues", "austin blues", "barrelhouse blues",
+      "birmingham blues", "black cat blues", "bluegrass blues", "blues revival", "boogie blues",
+      "british blues", "canadian blues", "chicago blues", "chicago electric blues", "classic blues",
+      "classic female blues", "contemporary blues", "country blues", "dark blues", "deep south blues",
+      "delta blues", "delta slide blues", "detroit blues", "dirty blues", "early downhome blues",
+      "east coast blues", "electric blues", "fingerpicking blues", "georgia blues", "gospel blues",
+      "hard blues", "harmonica blues", "hill country blues", "hokum blues", "jug band blues",
+      "jump blues", "kansas city blues", "louisiana blues", "memphis blues", "modern blues",
+      "modern electric blues", "modern slide blues", "mississippi blues", "new orleans blues",
+      "north mississippi hill country blues", "piano blues", "piedmont blues", "pre-war blues",
+      "ragtime blues", "resorock", "rhythm blues", "roots blues", "shouter blues", "slide guitar blues",
+      "soul blues revival", "southern blues", "southside chicago blues", "st. louis blues", "swamp blues",
+      "texas blues", "texas electric blues", "traditional blues", "urban blues", "vaudeville blues",
+      "vintage blues", "west coast blues", "whiskey blues", "white blues"
     ],
     "Classical & Ambient": [
-      "ambient", "avant-garde", "baroque", "cantata", "chamber orchestra", "choral", "classical era",
-      "contemporary classical", "early modern classical", "early music", "electroacoustic", "impressionism",
-      "medieval", "minimalism", "modern string quartet", "neoclassical", "opera", "orchestral",
-      "polyphony", "post-minimalism", "renaissance", "romantic era", "serialism", "sound art",
-      "spectralism", "twelve-tone",
-      "20th century classical", "acoustic ambient", "ambient drone classic", "ambient piano", "american contemporary classical",
-      "ancient music", "ballet", "baroque choir", "baroque violin", "british classical",
-      "canadian classical", "cello classical", "chamber choir", "chaconne", "cinematic classical",
-      "classical guitar", "classical piano", "concerto", "dark classical", "early baroque",
-      "english renaissance", "french impressionist classical", "french romantic", "gregorian chant", "harpsichord",
-      "italian baroque", "italian opera", "late romantic", "liturgical", "madrigal",
-      "microtonal classical", "minimalist piano", "modern choir", "modern composition", "neo-baroque",
-      "neo-romantic", "nordic classical", "organ classical", "overtone choir", "post-rock classical",
-      "requiem", "russian classical", "sacred choir", "sonata", "spanish classical",
-      "string orchestra", "symphony", "vocal classical", "vocal ensemble", "wind quintet"
+      "20th century classical", "acoustic ambient", "ambient", "ambient drone classic", "ambient piano",
+      "american contemporary classical", "ancient music", "avant-garde", "ballet", "baroque",
+      "baroque choir", "baroque violin", "british classical", "canadian classical", "cantata",
+      "cello classical", "chaconne", "chamber choir", "chamber orchestra", "choral",
+      "cinematic classical", "classical era", "classical guitar", "classical piano", "concerto",
+      "contemporary classical", "dark classical", "early baroque", "early modern classical", "early music",
+      "electroacoustic", "english renaissance", "french impressionist classical", "french romantic",
+      "gregorian chant", "harpsichord", "impressionism", "italian baroque", "italian opera",
+      "late romantic", "liturgical", "madrigal", "medieval", "microtonal classical", "minimalism",
+      "minimalist piano", "modern choir", "modern composition", "modern string quartet", "neo-baroque",
+      "neoclassical", "neo-romantic", "nordic classical", "opera", "orchestral", "organ classical",
+      "overtone choir", "polyphony", "post-minimalism", "post-rock classical", "renaissance",
+      "requiem", "romantic era", "russian classical", "sacred choir", "serialism", "sonata",
+      "sound art", "spanish classical", "spectralism", "string orchestra", "symphony",
+      "twelve-tone", "vocal classical", "vocal ensemble", "wind quintet"
     ],
     "Country": [
-      "alternative country", "australian country", "bakersfield sound", "bluegrass", "classic country",
-      "classic country pop", "country gospel", "country pop", "country rock", "cowboy western", "honky tonk",
-      "instrumental bluegrass", "nashville sound", "neo-traditional country", "outlaw country",
-      "progressive bluegrass", "red dirt", "texas country", "traditional bluegrass", "traditional country",
-      "truck-driving country", "western swing",
-      "alabama country", "americana country", "appalachian country", "arkansas country", "austin country",
-      "bluegrass gospel country", "bro country", "canadian country", "classic honky tonk", "classic outlaw",
-      "contemporary country", "country ballad", "country boogie", "country blues style", "country folk style",
-      "cowboy songs", "dark country", "deep traditional country", "early country", "female country",
-      "georgia country", "gospel bluegrass", "hard country", "indie country style", "kentucky country",
-      "lubbock sound", "modern country", "mountain music", "nashville sound classic", "neo-bluegrass",
-      "neo-honky tonk", "north carolina country", "oklahoma country", "outlaw country revival", "pacific northwest country",
-      "roots country", "rockabilly country", "sertanejo country", "southern gospel country", "tennessee country",
-      "texas honky tonk", "texas red dirt", "traditional country pop", "underground country", "vintage country",
-      "virginia country", "western country", "wyoming country"
+      "alabama country", "alternative country", "americana country", "appalachian country", "arkansas country",
+      "austin country", "australian country", "bakersfield sound", "bluegrass", "bluegrass gospel country",
+      "bro country", "canadian country", "classic country", "classic country pop", "classic honky tonk",
+      "classic outlaw", "contemporary country", "country ballad", "country boogie", "country blues style",
+      "country folk style", "country gospel", "country pop", "country rock", "cowboy songs",
+      "cowboy western", "dark country", "deep traditional country", "early country", "female country",
+      "georgia country", "gospel bluegrass", "hard country", "honky tonk", "indie country style",
+      "instrumental bluegrass", "kentucky country", "lubbock sound", "modern country", "mountain music",
+      "nashville sound", "nashville sound classic", "neo-bluegrass", "neo-honky tonk", "neo-traditional country",
+      "north carolina country", "oklahoma country", "outlaw country", "outlaw country revival",
+      "pacific northwest country", "progressive bluegrass", "red dirt", "rockabilly country", "roots country",
+      "sertanejo country", "southern gospel country", "tennessee country", "texas country", "texas honky tonk",
+      "texas red dirt", "traditional bluegrass", "traditional country", "traditional country pop",
+      "truck-driving country", "underground country", "vintage country", "virginia country",
+      "western country", "western swing", "wyoming country"
     ],
     "Electronic": [
-      "ambient 140", "modular bass", "neuro glitch hop", "organic bass", "space bass",
-      "2-step", "acid house", "acid techno", "acid trance", "afro house", "amapiano",
-      "ambient drone", "ambient techno", "autonomic", "baile funk", "balearic", "baltimore club",
-      "bassline", "bass music", "big beat", "birmingham techno", "bleep techno", "booty bass",
-      "bounce", "breakbeat", "breakcore", "broken beat", "brostep", "bubblegum bass",
-      "chicago house", "chillhop", "chillwave", "chiptune", "classic house", "classic trance",
-      "cloud rap instrumental", "club", "complextro", "crossbreed", "crushed", "dariacore",
-      "dark ambient", "dark electro", "dark psytrance", "dark techno", "dark wave", "darkstep",
-      "deconstructed club", "deep afro house", "deep groove house", "deep house", "deep minimal techno",
-      "deep progressive house", "detroit techno", "disco house", "diva house", "donk",
-      "downtempo", "downtempo bass", "drill and bass", "drone", "drum and bass", "drumstep",
-      "dub techno", "dubstep", "dungeon synth", "early hardstyle", "ebm", "electro house",
+      "2-step", "acid house", "acid techno", "acid trance", "acidcore", "afro house", "aggrotech",
+      "amapiano", "ambient 140", "ambient drone", "ambient dub", "ambient house", "ambient techno",
+      "autonomic", "baile funk", "balearic", "baltimore club", "bass house", "bass music", "bassline",
+      "berlin school", "big beat", "birmingham techno", "bleep techno", "booty bass", "bounce",
+      "breakbeat", "breakcore", "breakstep", "broken beat", "brostep", "bubblegum bass",
+      "chicago house", "chillhop", "chillstep", "chillwave", "chiptune", "classic house",
+      "classic trance", "clonk", "cloud rap instrumental", "club", "coldwave", "color bass", "complextro",
+      "crossbreed", "crushed", "cyberpunk", "dariacore", "dark ambient", "dark ambient industrial",
+      "dark electro", "dark psytrance", "dark techno", "dark wave", "darkcore", "darksynth",
+      "darkstep", "deathstep", "deconstructed club", "deep afro house", "deep dnb", "deep dubstep",
+      "deep groove house", "deep house", "deep minimal techno", "deep progressive house", "deep tech",
+      "detroit techno", "digital hardcore electronic", "disco house", "diva house", "donk",
+      "doomcore", "downtempo", "downtempo bass", "drift phonk", "drill and bass", "drone",
+      "drum and bass", "drumstep", "dub techno", "dubstep", "dubstep trap", "dungeon synth",
+      "dutch house", "early hardstyle", "ebm", "ebm industrial", "electro house", "electro swing",
       "electro-industrial", "electroclash", "electronic rock", "electropop", "epic trance",
       "eurodance", "europop", "experimental club", "experimental electronic", "fidget house",
       "flashcore", "flenkey", "folktronica", "footwork", "freeform hardcore", "french house",
-      "funk carioca", "funky house", "future bass", "future funk", "future garage", "future house",
-      "futurepop", "g-house", "gabber", "german techno", "glitch", "glitch hop",
-      "grime", "halftime", "hands up", "hard dance", "hard house", "hard style",
-      "hard techno", "hard trance", "hardcore techno", "hardstep", "hardvapour", "hauntology",
-      "hi-nrg", "house", "hyperpop", "idm", "illbient", "indie dance", "indietronica",
-      "industrial techno", "intelligent dnb", "italo dance", "italo disco", "jazz house",
-      "jersey club", "juke", "jump up", "jumpstyle", "jungle", "latin house", "leftfield bass",
-      "leftfield techno", "liquid dnb", "liquid funk", "lo-fi beats", "lo-fi house", "lolicore",
-      "lowercase", "makina", "mallsoft", "melodic house", "melodic techno", "miami bass",
-      "microhouse", "minimal techno", "moombahcore", "moombahton", "neo-disco", "neo-synthpop",
-      "neurofunk", "new beat", "new rave", "nightcore", "nu-disco", "outsider electronic",
-      "outsider house", "peak time techno", "phonk", "piano house", "plunderphonics",
-      "post-disco", "post-dubstep", "post-industrial", "progressive house", "progressive trance",
-      "psybient", "psytrance", "ragga jungle", "raw techno", "rawstyle", "riddim", "roller",
-      "sambass", "schranz", "scouse house", "sound art", "speed garage", "speedcore",
-      "subground", "suomisaundi", "synthpunk", "synthwave", "tech house", "techno",
-      "techstep", "terrorcore", "trance", "tribal house", "trip hop", "tropical house",
-      "uk bass", "uk drill instrumental", "uk funky", "uk garage", "uplifting trance",
-      "vapor hop", "vaporwave", "vocal house", "vocal trance", "wave", "weightless",
-      "witch house", "wonky", "acidcore", "aggrotech", "ambient dub", "ambient house", "bass house",
-      "berlin school", "breakstep", "chillstep", "clonk", "coldwave", "cyberpunk",
-      "dark ambient industrial", "darkcore", "deathstep", "darksynth", "deep dubstep",
-      "deep dnb", "deep tech", "digital hardcore electronic", "doomcore", "drift phonk",
-      "dubstep trap", "dutch house", "ebm industrial", "electro swing", "frenchcore",
-      "future rave", "glitch pop", "goa trance", "hardcore breaks", "hardwave",
-      "hi-tech psy", "hypnagogic pop", "industrial bass", "j-core", "kuduro electronic",
-      "liquid trap", "lo-fi hip hop electronic", "melodic dubstep", "microtonal electronic",
-      "minimal wave", "modular synth", "mowest bass", "neotrance", "nintendocore",
-      "organic house", "power noise", "prog psy", "progressive breaks", "psydub",
-      "rhythmic noise", "slow house", "space ambient", "tearout", "tekno",
-      "uk hard house", "vocal chillout", "wonky techno", "xtreme hardcore"
+      "frenchcore", "funk carioca", "funky house", "future bass", "future funk", "future garage",
+      "future house", "future rave", "futurepop", "g-house", "gabber", "german techno", "glitch",
+      "glitch hop", "glitch pop", "goa trance", "grime", "halftime", "hands up", "hard dance",
+      "hard house", "hard style", "hard techno", "hard trance", "hardcore breaks", "hardcore techno",
+      "hardstep", "hardvapour", "hardwave", "hauntology", "hi-nrg", "hi-tech psy", "house",
+      "hypnagogic pop", "hyperpop", "idm", "illbient", "indie dance", "indietronica",
+      "industrial bass", "industrial techno", "intelligent dnb", "italo dance", "italo disco",
+      "j-core", "jazz house", "jersey club", "juke", "jump up", "jumpstyle", "jungle",
+      "kuduro electronic", "latin house", "leftfield bass", "leftfield techno", "liquid dnb",
+      "liquid funk", "liquid trap", "lo-fi beats", "lo-fi hip hop electronic", "lo-fi house",
+      "lolicore", "lowercase", "makina", "mallsoft", "melodic dubstep", "melodic house",
+      "melodic techno", "miami bass", "microhouse", "microtonal electronic", "minimal techno",
+      "minimal wave", "modular bass", "modular synth", "moombahcore", "moombahton", "mowest bass",
+      "neo-disco", "neo-synthpop", "neotrance", "neuro glitch hop", "neurofunk", "new beat",
+      "new rave", "nightcore", "nintendocore", "nu-disco", "organic bass", "organic house",
+      "outsider electronic", "outsider house", "peak time techno", "phonk", "piano house",
+      "plunderphonics", "post-disco", "post-dubstep", "post-industrial", "power noise", "prog psy",
+      "progressive breaks", "progressive house", "progressive trance", "psybient", "psydub",
+      "psytrance", "ragga jungle", "raw techno", "rawstyle", "rhythmic noise", "riddim", "roller",
+      "sambass", "schranz", "scouse house", "slow house", "sound art", "space ambient",
+      "space bass", "speed garage", "speedcore", "subground", "suomisaundi", "synthpunk",
+      "synthwave", "tearout", "tech house", "techno", "techstep", "tekno", "terrorcore",
+      "trance", "tribal house", "trip hop", "tropical house", "uk bass", "uk drill instrumental",
+      "uk funky", "uk garage", "uk hard house", "uplifting trance", "vapor hop", "vaporwave",
+      "vocal chillout", "vocal house", "vocal trance", "wave", "weightless", "witch house",
+      "wonky", "wonky techno", "xtreme hardcore"
     ],
     "Folk & Roots": [
-      "american primitive", "americana", "appalachian folk", "cajun", "celtic", "celtic folk",
-      "contemporary folk", "corridos tumbados", "dark folk", "early american folk", "english folk",
-      "fiddle", "fingerstyle", "folk", "irish folk", "neofolk", "old-time", "progressive folk",
-      "quebecois", "sea shanty", "scottish folk", "traditional folk", "zydeco",
-      "acoustic folk", "alaskan folk", "alpine folk", "american folk revival", "anti-folk roots",
-      "australian folk", "balkan roots", "blue ridge folk", "british folk revival", "canadian folk",
-      "catalan folk", "celtic harp", "chamber folk", "creole roots", "danish folk",
-      "deep roots", "early folk", "finnish folk", "flemish folk", "french folk",
+      "acoustic folk", "alaskan folk", "alpine folk", "american folk revival", "american primitive",
+      "americana", "anti-folk roots", "appalachian folk", "australian folk", "balkan roots",
+      "blue ridge folk", "british folk revival", "cajun", "canadian folk", "catalan folk",
+      "celtic", "celtic folk", "celtic harp", "chamber folk", "contemporary folk", "corridos tumbados",
+      "creole roots", "danish folk", "dark folk", "deep roots", "early american folk", "early folk",
+      "english folk", "fiddle", "fingerstyle", "finnish folk", "flemish folk", "folk", "french folk",
       "galician folk", "german folk", "gothic folk", "greenlandic folk", "icelandic folk",
-      "indie folk roots", "italian folk", "klezmer roots", "labrador folk", "maritime folk",
-      "modern folk", "mountain folk", "new england folk", "nordic folk", "norwegian folk",
-      "ozark folk", "pacific folk", "polish folk", "portuguese folk", "russian folk",
-      "scandinavian folk", "shetland folk", "spanish folk", "swedish folk", "swiss folk",
-      "traditional celtic", "ukrainian folk", "welsh folk", "woodstock folk"
+      "indie folk roots", "irish folk", "italian folk", "klezmer roots", "labrador folk",
+      "maritime folk", "modern folk", "mountain folk", "neofolk", "new england folk", "nordic folk",
+      "norwegian folk", "old-time", "ozark folk", "pacific folk", "polish folk", "portuguese folk",
+      "progressive folk", "quebecois", "russian folk", "scandinavian folk", "scottish folk",
+      "sea shanty", "shetland folk", "spanish folk", "swedish folk", "swiss folk", "traditional celtic",
+      "traditional folk", "ukrainian folk", "welsh folk", "woodstock folk", "zydeco"
     ],
     "Global & World": [
-      "afrobeats", "afro dancehall", "afro pop", "algerian chaabi", "anatolian rock", "arab pop",
-      "balkan brass", "bhangra", "bhangra fusion", "calypso", "cape verdean", "chaabi", "chutney",
-      "city pop", "classic bollywood", "desert blues", "deshi pop", "enka", "fado", "flamenco",
-      "flamenco nuevo", "genge", "ghanaian highlife", "gnawa", "gqom", "highlife", "j-pop",
-      "kayokyoku", "kizomba", "k-pop", "kuduro", "luk thung", "makossa", "maloya", "marrabenta",
-      "morna", "mpb", "punjabi pop", "qawwali", "rai", "rumba congolaise", "sega", "seggae",
-      "semba", "shibuya-kei", "singeli", "soukous", "sufi rock", "taarab", "tropicália",
-      "tuvan throat singing", "wassoulou", "ye-ye", "zouk",
-      "afro funk", "afrobeat classic", "albanian pop", "andean folklore", "arabic classical",
-      "armenian folk", "azerbaijani mugham", "balinese gamelan", "balkan folk", "bulgarian choir",
-      "carnatic", "celtic traditional", "chadian pop", "chin traditional", "dagestani folk",
-      "ethiopian jazz style", "fijian traditional", "georgian polyphony", "greek traditional", "haitian compas",
-      "hindustani classical", "inuit throat singing", "iranian traditional", "irish traditional", "javanese gamelan",
-      "klezmer", "korean sanjo", "korean trot", "kurdish folk", "malian blues",
-      "maori traditional", "mongolian throat singing", "moroccan gnawa", "nigerian juju", "okinawan traditional",
-      "persian classical", "polynesian traditional", "sardinian canto", "scottish traditional", "siberian folk",
-      "sitar classical", "sudan pop", "tibetan chant", "turkish classical", "uzbek folk",
-      "vietnamese ca tru", "zimbabwean chimurenga"
+      "afro dancehall", "afro funk", "afro pop", "afrobeat classic", "afrobeats", "albanian pop",
+      "algerian chaabi", "anatolian rock", "andean folklore", "arab pop", "arabic classical",
+      "armenian folk", "azerbaijani mugham", "balinese gamelan", "balkan brass", "balkan folk",
+      "bhangra", "bhangra fusion", "bulgarian choir", "calypso", "cape verdean", "carnatic",
+      "celtic traditional", "chaabi", "chadian pop", "chin traditional", "chutney", "city pop",
+      "classic bollywood", "dagestani folk", "desert blues", "deshi pop", "enka", "ethiopian jazz style",
+      "fado", "fijian traditional", "flamenco", "flamenco nuevo", "genge", "georgian polyphony",
+      "ghanaian highlife", "gnawa", "gqom", "greek traditional", "haitian compas", "highlife",
+      "hindustani classical", "inuit throat singing", "iranian traditional", "irish traditional",
+      "j-pop", "japanese traditional", "javanese gamelan", "kayokyoku", "kizomba", "klezmer",
+      "korean sanjo", "korean trot", "k-pop", "kuduro", "kurdish folk", "luk thung", "makossa",
+      "malian blues", "maloya", "maori traditional", "marrabenta", "mongolian throat singing",
+      "morna", "moroccan gnawa", "mpb", "nigerian juju", "okinawan traditional", "persian classical",
+      "polynesian traditional", "punjabi pop", "qawwali", "rai", "rumba congolaise", "sardinian canto",
+      "scottish traditional", "sega", "seggae", "semba", "shibuya-kei", "siberian folk", "singeli",
+      "sitar classical", "soukous", "sudan pop", "sufi rock", "taarab", "tibetan chant", "tropicália",
+      "turkish classical", "tuvan throat singing", "uzbek folk", "vietnamese ca tru", "wassoulou",
+      "ye-ye", "zimbabwean chimurenga", "zouk"
     ],
     "Hip Hop": [
-      "abstract hip hop", "alternative hip hop", "atlanta bass", "atlanta trap", "boom bap", "bronx drill",
-      "brooklyn drill", "chicago bop", "chicago drill", "chicano rap", "chopped and screwed", "cloud rap",
-      "cloud rap instrumental", "conscious hip hop", "crunk", "crunkcore", "detroit trap", "dirty south rap",
-      "dmv rap", "drill", "east coast hip hop", "emo rap", "experimental hip hop", "flint hip hop",
-      "florida rap", "freestyle", "g-funk", "gangsta rap", "golden age hip hop", "grime", "hardcore hip hop",
-      "horrorcore", "houston rap", "hyphy", "instrumental hip hop", "jazz rap", "latin hip hop",
-      "memphis hip hop", "miami bass", "nerdcore", "old school hip hop", "plugg", "pluggnb", "political hip hop",
-      "pop rap", "rage rap", "rap metal", "rap rock", "screw", "snap rap", "southern hip hop", "trap",
-      "trap queen", "turntablism", "uk drill", "underground hip hop", "vapor trap", "west coast rap",
-      "afro trap", "alabama rap", "asian american hip hop", "australian hip hop", "bay area hip hop",
-      "california rap", "canadian hip hop", "chicago rap", "christian hip hop", "conscious rap",
-      "country rap", "cumbia rap", "dark trap", "deep southern rap", "dirt rap",
-      "dirty rap", "downtempo hip hop", "french hip hop", "german hip hop", "golden era rap",
-      "hard rap", "industrial hip hop", "japanese hip hop", "kentucky hip hop", "korean hip hop",
-      "latin trap", "lo-fi rap", "louisiana rap", "melodic rap", "midwest hip hop",
-      "mumble rap", "native american hip hop", "new jersey rap", "new orleans rap", "nyc rap",
-      "ohio hip hop", "old school rap", "philly rap", "phonk rap", "political rap",
-      "queens rap", "reggaeton rap", "sad rap", "screamo rap", "soundbutt rap",
-      "spanish hip hop", "toronto rap", "trap soul", "triad rap", "underground rap"
+      "abstract hip hop", "afro trap", "alabama rap", "alternative hip hop", "asian american hip hop",
+      "atlanta bass", "atlanta trap", "australian hip hop", "bay area hip hop", "boom bap", "bronx drill",
+      "brooklyn drill", "california rap", "canadian hip hop", "chicago bop", "chicago drill", "chicago rap",
+      "chicano rap", "chopped and screwed", "christian hip hop", "cloud rap", "cloud rap instrumental",
+      "conscious hip hop", "conscious rap", "country rap", "crunk", "crunkcore", "cumbia rap",
+      "dark trap", "deep southern rap", "detroit trap", "dirt rap", "dirty rap", "dirty south rap",
+      "dmv rap", "downtempo hip hop", "drill", "east coast hip hop", "emo rap", "experimental hip hop",
+      "flint hip hop", "florida rap", "freestyle", "french hip hop", "g-funk", "gangsta rap",
+      "german hip hop", "golden age hip hop", "golden era rap", "grime", "hard rap", "hardcore hip hop",
+      "horrorcore", "houston rap", "hyphy", "industrial hip hop", "instrumental hip hop",
+      "japanese hip hop", "jazz rap", "kentucky hip hop", "korean hip hop", "latin hip hop",
+      "latin trap", "lo-fi rap", "louisiana rap", "melodic rap", "memphis hip hop", "miami bass",
+      "midwest hip hop", "mumble rap", "native american hip hop", "nerdcore", "new jersey rap",
+      "new orleans rap", "nyc rap", "ohio hip hop", "old school hip hop", "old school rap",
+      "philly rap", "phonk rap", "plugg", "pluggnb", "political hip hop", "political rap", "pop rap",
+      "queens rap", "rage rap", "rap metal", "rap rock", "reggaeton rap", "sad rap", "screamo rap",
+      "screw", "snap rap", "soundbutt rap", "southern hip hop", "spanish hip hop", "toronto rap",
+      "trap", "trap queen", "trap soul", "triad rap", "turntablism", "uk drill", "underground hip hop",
+      "underground rap", "vapor trap", "west coast rap"
     ],
     "Indie & Alternative": [
-      "alternative pop", "ambient pop", "anti-folk", "art pop", "australian indie", "baroque pop",
-      "bay area indie", "bedroom pop", "blackgaze", "brooklyn indie", "c86", "chamber pop",
-      "chillwave", "dunedin sound", "dream pop", "freak folk", "indie folk", "indie garage rock",
-      "indie pop", "indie rock", "indie surf", "lo-fi indie", "midwest emo", "neo-acoustic",
-      "noise pop", "paisley underground", "post-punk revival", "sadcore", "scenecore", "shimmer pop",
-      "twee pop", "underground power pop", "vapor pop", "acoustic indie", "alt z",
-      "alternative country indie", "alternative dance", "alternative emo", "ambient indie",
-      "athens indie", "austin indie", "brighton indie", "bristol indie", "canadian indie",
-      "charlotte indie", "chicago indie pop", "chill dream pop", "dark bedroom pop", "dc indie",
-      "denver indie", "dream pop revival", "english indie", "ethereal wave", "experimental pop",
-      "french indie", "garage pop", "german indie", "gothenburg indie", "indie country",
-      "indie emo", "indie dream pop", "indie fuzz", "indie psych", "indie r&b",
-      "indie shoegaze", "irish indie", "japanese indie", "k-indie", "la indie",
-      "leeds indie", "lo-fi dream pop", "manchester indie", "melbourne indie", "neo-psychedelia pop",
-      "new zealand indie", "nordic indie", "north carolina indie", "oakland indie", "portland indie",
-      "quebec indie", "scottish indie", "seattle indie", "slowcore indie", "swedish indie", "toronto indie"
+      "acoustic indie", "alt z", "alternative country indie", "alternative dance", "alternative emo",
+      "alternative pop", "ambient indie", "ambient pop", "anti-folk", "art pop", "athens indie",
+      "austin indie", "australian indie", "baroque pop", "bay area indie", "bedroom pop", "blackgaze",
+      "brighton indie", "bristol indie", "brooklyn indie", "c86", "canadian indie", "chamber pop",
+      "charlotte indie", "chicago indie pop", "chill dream pop", "chillwave", "dark bedroom pop",
+      "dc indie", "denver indie", "dream pop", "dream pop revival", "dunedin sound", "english indie",
+      "ethereal wave", "experimental pop", "freak folk", "french indie", "garage pop", "german indie",
+      "gothenburg indie", "indie country", "indie dream pop", "indie emo", "indie folk", "indie fuzz",
+      "indie garage rock", "indie pop", "indie psych", "indie r&b", "indie rock", "indie shoegaze",
+      "indie surf", "irish indie", "japanese indie", "k-indie", "la indie", "leeds indie",
+      "lo-fi dream pop", "lo-fi indie", "manchester indie", "melbourne indie", "midwest emo",
+      "neo-acoustic", "neo-psychedelia pop", "new zealand indie", "noise pop", "nordic indie",
+      "north carolina indie", "oakland indie", "paisley underground", "portland indie",
+      "post-punk revival", "quebec indie", "sadcore", "scenecore", "scottish indie", "seattle indie",
+      "shimmer pop", "slowcore indie", "swedish indie", "toronto indie", "twee pop",
+      "underground power pop", "vapor pop"
     ],
     "Jazz": [
-      "acid jazz", "african-american jazz", "afro-cuban jazz", "asian american jazz", "avant-garde jazz",
-      "bebop", "big band", "bop", "bossa nova", "british modern jazz", "cape jazz", "chamber jazz",
-      "contemporary post-bop", "cool jazz", "dixieland", "ecm-style jazz", "ethio-jazz", "european free jazz",
-      "free jazz", "fusion", "gypsy jazz", "hard bop", "jazz funk", "jazz fusion", "jazz poetry",
-      "jazz rock", "latin jazz", "manouche", "modal jazz", "neo-bop", "new orleans jazz", "nu jazz",
-      "post-bop", "ragtime", "shibuya jazz", "smooth jazz", "soul jazz", "spiritual jazz", "stride",
-      "swing", "trad jazz", "vocal jazz", "west coast jazz",
-      "acoustic jazz", "ambient jazz", "australian jazz", "avant-garde free jazz", "balkan jazz",
-      "brazilian jazz", "canadian jazz", "chicago jazz", "cuban jazz", "danish jazz",
-      "dark jazz", "dutch jazz", "early jazz", "french jazz", "german modern jazz",
-      "harlem jazz", "hard bop revival", "italian jazz", "japanese free jazz", "japanese jazz",
-      "jazz blues", "jazz brass", "jazz guitar", "jazz harp", "jazz piano",
-      "kansas city jazz", "london jazz scene", "lo-fi jazz", "mainstream jazz", "modern creative jazz",
-      "nordic jazz", "norwegian jazz", "orchestral jazz", "polish jazz", "progressive jazz",
-      "ragtime jazz", "rio jazz", "scandinavian jazz", "scottish jazz", "solo piano jazz",
-      "south african jazz", "spanish jazz", "swedish jazz", "swiss jazz", "third stream",
-      "tokyo jazz", "trad swing", "vintage jazz", "yugoslav jazz"
+      "acid jazz", "acoustic jazz", "african-american jazz", "afro-cuban jazz", "ambient jazz",
+      "asian american jazz", "australian jazz", "avant-garde free jazz", "avant-garde jazz", "balkan jazz",
+      "bebop", "big band", "bop", "bossa nova", "brazilian jazz", "british modern jazz", "canadian jazz",
+      "cape jazz", "chamber jazz", "chicago jazz", "contemporary post-bop", "cool jazz", "cuban jazz",
+      "danish jazz", "dark jazz", "dixieland", "dutch jazz", "early jazz", "ecm-style jazz", "ethio-jazz",
+      "european free jazz", "free jazz", "french jazz", "fusion", "german modern jazz", "gypsy jazz",
+      "hard bop", "hard bop revival", "harlem jazz", "italian jazz", "japanese free jazz", "japanese jazz",
+      "jazz blues", "jazz brass", "jazz funk", "jazz fusion", "jazz guitar", "jazz harp", "jazz piano",
+      "jazz poetry", "jazz rock", "kansas city jazz", "latin jazz", "lo-fi jazz", "london jazz scene",
+      "mainstream jazz", "manouche", "modal jazz", "modern creative jazz", "neo-bop", "new orleans jazz",
+      "nordic jazz", "norwegian jazz", "nu jazz", "orchestral jazz", "polish jazz", "post-bop",
+      "progressive jazz", "ragtime", "ragtime jazz", "rio jazz", "scandinavian jazz", "scottish jazz",
+      "shibuya jazz", "smooth jazz", "solo piano jazz", "soul jazz", "south african jazz", "spanish jazz",
+      "spiritual jazz", "stride", "swedish jazz", "swing", "swiss jazz", "third stream", "tokyo jazz",
+      "trad jazz", "trad swing", "vintage jazz", "vocal jazz", "west coast jazz", "yugoslav jazz"
     ],
     "Latin": [
-      "bachata", "bachata dominicana", "bolero", "boogaloo", "chicha", "colombian cumbia", "corrido",
-      "cuarteto", "cumbia", "cumbia 420", "cumbia argentina", "cumbia sonidera", "cumbia villera",
-      "danzon", "festejo", "forro", "huayno", "latin alternative", "latin afrobeat", "latin jazz",
-      "latin pop", "latin rock", "mambo", "mariachi", "merengue", "merengue tipico", "norteno",
-      "nuevo tango", "pachanga", "pagode", "plena", "psychedelic cumbia", "ranchera", "reggaeton",
-      "salsa", "salsa choke", "salsa dura", "samba", "samba-reggae", "sertanejo", "son cubano",
-      "tango", "tejano", "timba", "trap latino", "trova", "vallenato",
-      "afro-peruvian", "axe", "bambuco", "bolero son", "bomba",
-      "bosanova style", "brazilian funk", "cancion melodica", "cha cha cha", "choro",
-      "colombian salsa", "copla", "cumbia chilena", "cumbia funk", "cumbia sonorense",
-      "flamenco pop", "guajira", "jarocho", "latin ballad", "latin funk",
-      "latin ska", "llanera", "mambo funk", "maracatu", "mexican son",
-      "milonga", "musica andina", "musica criolla", "musica popular brasileira", "nueva cancion",
-      "peruvian cumbia", "puerto rican salsa", "punta", "rock en espanol latin", "salsa romantica",
-      "samba de raiz", "samba pagoda", "son jarocho", "son montuno", "sonora cumbia",
-      "tropical latin", "trova cubana", "vallenato romantico", "venezuelan traditional", "zouk latino"
+      "afro-peruvian", "axe", "bachata", "bachata dominicana", "bambuco", "bolero", "bolero son",
+      "bomba", "boogaloo", "bosanova style", "brazilian funk", "cancion melodica", "cha cha cha",
+      "chicha", "choro", "colombian cumbia", "colombian salsa", "copla", "corrido", "cuarteto",
+      "cumbia", "cumbia 420", "cumbia argentina", "cumbia chilena", "cumbia funk", "cumbia sonidera",
+      "cumbia sonorense", "cumbia villera", "danzon", "festejo", "flamenco pop", "forro", "guajira",
+      "huayno", "jarocho", "latin afrobeat", "latin alternative", "latin ballad", "latin funk",
+      "latin jazz", "latin pop", "latin rock", "latin ska", "llanera", "mambo", "mambo funk",
+      "maracatu", "mariachi", "merengue", "merengue tipico", "mexican son", "milonga", "musica andina",
+      "musica criolla", "musica popular brasileira", "norteno", "nueva cancion", "nuevo tango",
+      "pachanga", "pagode", "peruvian cumbia", "plena", "psychedelic cumbia", "puerto rican salsa",
+      "punta", "ranchera", "reggaeton", "rock en espanol latin", "salsa", "salsa choke", "salsa dura",
+      "salsa romantica", "samba", "samba de raiz", "samba pagoda", "samba-reggae", "sertanejo",
+      "son cubano", "son jarocho", "son montuno", "sonora cumbia", "tango", "tejano", "timba",
+      "trap latino", "tropical latin", "trova", "trova cubana", "vallenato", "vallenato romantico",
+      "venezuelan traditional", "zouk latino"
     ],
     "Metal": [
-      "alternative metal", "atmospheric black metal", "black 'n' roll", "black metal", "brutal death metal",
-      "celtic metal", "christian metal", "crustcore", "cyber metal", "deathcore", "deathgrind",
-      "death metal", "death 'n' roll", "djent", "doom metal", "drone metal", "epic doom", "folk metal",
-      "funeral doom", "glam metal", "goregrind", "gothic metal", "grindcore", "groove metal", "heavy metal",
-      "industrial metal", "mathcore", "melodic black metal", "melodic death metal", "melodic metalcore",
-      "metalcore", "neoclassical metal", "neo-thrash", "nu metal", "nwobhm", "pagan black metal",
-      "pirate metal", "pornogrind", "post-metal", "power metal", "progressive death metal", "progressive metal",
-      "slam death metal", "sludge metal", "speed metal", "stoner metal", "symphonic black metal",
-      "symphonic deathcore", "symphonic metal", "technical death metal", "thrash metal", "viking metal", "war metal",
-      "avant-garde metal", "bay area thrash", "belgian metal", "blackened death metal", "blackened thrash",
-      "brazilian metal", "canadian metal", "cavernous death metal", "celtic black metal", "chilean metal",
-      "depressive black metal", "downtempo deathcore", "dungeon metal", "early black metal", "epic black metal",
-      "finnish death metal", "finnish metal", "florida death metal", "french black metal", "german metal",
-      "gorenoise", "greek metal", "icelandic black metal", "japanese metal", "medieval black metal",
-      "melodic thrash", "modern metal", "norwegian black metal", "old school death metal", "polish black metal",
-      "post-black metal", "progressive black metal", "raw black metal", "slavic metal", "south american death metal",
-      "stoner doom", "swedish death metal", "swedish metal", "swiss metal", "technical thrash",
-      "teutonic thrash", "traditional heavy metal", "true metal", "uk doom", "usbm",
-      "viking black metal", "warmetal style", "witch metal"
+      "alternative metal", "atmospheric black metal", "avant-garde metal", "bay area thrash",
+      "belgian metal", "black 'n' roll", "black metal", "blackened death metal", "blackened thrash",
+      "brazilian metal", "brutal death metal", "canadian metal", "cavernous death metal", "celtic black metal",
+      "celtic metal", "chilean metal", "christian metal", "crustcore", "cyber metal", "death 'n' roll",
+      "death metal", "deathcore", "deathgrind", "depressive black metal", "djent", "doom metal",
+      "downtempo deathcore", "drone metal", "dungeon metal", "early black metal", "epic black metal",
+      "epic doom", "finnish death metal", "finnish metal", "florida death metal", "folk metal",
+      "french black metal", "funeral doom", "german metal", "glam metal", "goregrind", "gorenoise",
+      "gothic metal", "greek metal", "grindcore", "groove metal", "heavy metal", "icelandic black metal",
+      "industrial metal", "japanese metal", "mathcore", "medieval black metal", "melodic black metal",
+      "melodic death metal", "melodic metalcore", "melodic thrash", "metalcore", "modern metal",
+      "neoclassical metal", "neo-thrash", "norwegian black metal", "nu metal", "nwobhm",
+      "old school death metal", "pagan black metal", "pirate metal", "polish black metal", "pornogrind",
+      "post-black metal", "post-metal", "power metal", "progressive black metal", "progressive death metal",
+      "progressive metal", "raw black metal", "slam death metal", "slavic metal", "sludge metal",
+      "south american death metal", "speed metal", "stoner doom", "stoner metal", "swedish death metal",
+      "swedish metal", "swiss metal", "symphonic black metal", "symphonic deathcore", "symphonic metal",
+      "technical death metal", "technical thrash", "teutonic thrash", "thrash metal", "traditional heavy metal",
+      "true metal", "uk doom", "usbm", "viking black metal", "viking metal", "war metal",
+      "warmetal style", "witch metal"
     ],
     "Punk & Hardcore": [
-      "anarcho-punk", "art punk", "australian garage punk", "celtic punk", "chaotic hardcore",
-      "cowpunk", "crust punk", "d-beat", "dance-punk", "deathrock", "digital hardcore", "early pop punk",
-      "emo", "emocore", "fast melodic punk", "folk punk", "garage punk", "gypsy punk", "hardcore punk",
-      "horror punk", "melodic hardcore", "mod revival", "no wave", "oi", "orgcore", "pop punk",
-      "post-hardcore", "post-punk", "powerviolence", "proto-punk", "psychobilly", "punk rock", "queercore",
-      "riot grrrl", "sasscore", "screamo", "skate punk", "street punk", "surf punk", "synthpunk", "thrashcore",
-      "80s hardcore", "action punk", "afropunk", "boston hardcore", "brazilian hardcore",
-      "california hardcore", "canadian punk", "chicago punk", "cleveland punk", "crossover thrash",
-      "crustcore", "dc hardcore", "death punk", "diy punk", "dutch punk",
-      "east coast punk", "electropunk", "finnish hardcore", "french punk", "german punk",
-      "glue punk", "goth punk", "grindpunk", "grungecore", "hardcore crossover",
-      "italian hardcore", "japanese hardcore", "latinx punk", "melodic punk", "midwest hardcore",
-      "minneapolis punk", "motorpunk", "new york hardcore", "noise hardcore", "northeastern punk",
-      "nwobhm punk", "pittsburgh punk", "post-emo", "punk blues", "rochester punk",
-      "russian punk", "scandi punk", "spanish punk", "straight edge", "swedish hardcore",
+      "80s hardcore", "action punk", "afropunk", "anarcho-punk", "art punk", "australian garage punk",
+      "boston hardcore", "brazilian hardcore", "california hardcore", "canadian punk", "celtic punk",
+      "chaotic hardcore", "chicago punk", "cleveland punk", "cowpunk", "crossover thrash", "crust punk",
+      "crustcore", "d-beat", "dance-punk", "dc hardcore", "death punk", "deathrock", "digital hardcore",
+      "diy punk", "dutch punk", "early pop punk", "east coast punk", "electropunk", "emo", "emocore",
+      "fast melodic punk", "finnish hardcore", "folk punk", "french punk", "garage punk", "german punk",
+      "glue punk", "goth punk", "grindpunk", "grungecore", "gypsy punk", "hardcore crossover",
+      "hardcore punk", "horror punk", "italian hardcore", "japanese hardcore", "latinx punk",
+      "melodic hardcore", "melodic punk", "midwest hardcore", "minneapolis punk", "mod revival",
+      "motorpunk", "new york hardcore", "no wave", "noise hardcore", "northeastern punk", "nwobhm punk",
+      "oi", "orgcore", "pittsburgh punk", "pop punk", "post-emo", "post-hardcore", "post-punk",
+      "powerviolence", "proto-punk", "psychobilly", "punk blues", "punk rock", "queercore", "riot grrrl",
+      "rochester punk", "russian punk", "sasscore", "scandi punk", "screamo", "skate punk", "spanish punk",
+      "straight edge", "street punk", "surf punk", "swedish hardcore", "synthpunk", "thrashcore",
       "tijuana punk", "uk 82", "uk hardcore", "youth crew"
     ],
     "R&B & Soul": [
-      "alternative r&b", "blue-eyed soul", "brown eyed soul", "chicago soul", "classic soul",
-      "contemporary r&b", "deep soul", "disco", "doo-wop", "funk", "memphis soul", "modern funk",
-      "motown", "neo soul", "new jack swing", "northern soul", "philly soul", "post-disco soul",
-      "psychedelic soul", "quiet storm", "retro soul", "rhythm and blues", "smooth soul", "soul",
-      "soul blues", "southern soul", "swamp pop", "urban contemporary",
-      "acoustic soul", "afro r&b", "alt r&b", "australian r&b", "bay area r&b",
-      "boogie funk", "canadian contemporary r&b", "chicano soul", "chill r&b", "classic r&b",
-      "contemporary soul", "deep funk", "detroit soul", "disco soul", "electro soul",
-      "english soul", "french r&b", "funk soul", "future soul", "gospel r&b",
-      "gospel soul", "indie r&b style", "indie soul", "instrumental soul", "japanese r&b",
-      "k-r&b", "latin soul", "lo-fi r&b", "louisiana soul", "melodic soul",
-      "miami soul", "modern r&b", "modern soul", "muscle shoals soul", "neo r&b",
-      "new orleans funk", "new orleans soul", "nordic r&b", "philly sound", "p-funk",
-      "reggae soul", "retro r&b", "roots soul", "smooth r&b", "soul jazz vocal",
-      "south african r&b", "stax soul", "sweet soul", "uk contemporary r&b", "vintage r&b"
+      "acoustic soul", "afro r&b", "alt r&b", "alternative r&b", "australian r&b", "bay area r&b",
+      "blue-eyed soul", "boogie funk", "brown eyed soul", "canadian contemporary r&b", "chicago soul",
+      "chicano soul", "chill r&b", "classic r&b", "classic soul", "contemporary r&b", "contemporary soul",
+      "deep funk", "deep soul", "detroit soul", "disco", "disco soul", "doo-wop", "electro soul",
+      "english soul", "french r&b", "funk", "funk soul", "future soul", "gospel r&b", "gospel soul",
+      "indie r&b style", "indie soul", "instrumental soul", "japanese r&b", "k-r&b", "latin soul",
+      "lo-fi r&b", "louisiana soul", "melodic soul", "memphis soul", "miami soul", "modern funk",
+      "modern r&b", "modern soul", "motown", "muscle shoals soul", "neo r&b", "neo soul", "new jack swing",
+      "new orleans funk", "new orleans soul", "nordic r&b", "northern soul", "p-funk", "philly soul",
+      "philly sound", "post-disco soul", "psychedelic soul", "quiet storm", "reggae soul", "retro r&b",
+      "retro soul", "rhythm and blues", "roots soul", "smooth r&b", "smooth soul", "soul", "soul blues",
+      "soul jazz vocal", "south african r&b", "southern soul", "stax soul", "swamp pop", "sweet soul",
+      "uk contemporary r&b", "urban contemporary", "vintage r&b"
     ],
     "Reggae & Dub": [
-      "2 tone", "dancehall", "dub", "dub poetry", "lovers rock", "mento", "modern reggae",
-      "ragga", "raggamuffin", "reggae", "reggae fusion", "rocksteady", "roots reggae", "ska",
-      "ska jazz", "ska punk", "soca", "spouge", "steelpan", "traditional ska", "uk dub",
-      "african reggae", "afro reggae", "bass culture dub", "brazilian reggae", "british reggae",
+      "2 tone", "african reggae", "afro reggae", "bass culture dub", "brazilian reggae", "british reggae",
       "calypso reggae", "chilean reggae", "classic dancehall", "classic dub", "colombian reggae",
-      "conscious dancehall", "conscious reggae", "deep dub", "digital dancehall", "digital reggae",
-      "dub reggae classic", "early dancehall", "early reggae", "french reggae", "german reggae",
-      "hawaiian reggae", "heavy dub", "instrumental dub", "island reggae", "italian reggae",
-      "japanese reggae", "kingston dub", "latin reggae", "lovers rock classic", "madagascan reggae",
-      "melodica dub", "mexican reggae", "new york reggae", "nyabinghi", "pacific reggae",
-      "polish reggae", "polynesian reggae", "roots dub", "rub-a-dub", "sound system dub",
-      "spanish reggae", "steppers dub", "swedish reggae", "uk dancehall", "uk roots reggae",
-      "vocal dub", "vintage ska", "warm reggae", "world reggae"
+      "conscious dancehall", "conscious reggae", "dancehall", "deep dub", "digital dancehall",
+      "digital reggae", "dub", "dub poetry", "dub reggae classic", "early dancehall", "early reggae",
+      "french reggae", "german reggae", "hawaiian reggae", "heavy dub", "instrumental dub", "island reggae",
+      "italian reggae", "japanese reggae", "kingston dub", "latin reggae", "lovers rock",
+      "lovers rock classic", "madagascan reggae", "melodica dub", "mento", "mexican reggae",
+      "modern reggae", "new york reggae", "nyabinghi", "pacific reggae", "polish reggae",
+      "polynesian reggae", "ragga", "raggamuffin", "reggae", "reggae fusion", "rocksteady",
+      "roots dub", "roots reggae", "rub-a-dub", "ska", "ska jazz", "ska punk", "soca", "sound system dub",
+      "spanish reggae", "spouge", "steelpan", "steppers dub", "swedish reggae", "traditional ska",
+      "uk dancehall", "uk dub", "uk roots reggae", "vintage ska", "vocal dub", "warm reggae", "world reggae"
     ],
     "Rock": [
-      "acid rock", "action rock", "alternative rock", "arena rock", "art rock", "australian rock",
-      "blues rock", "boogie rock", "classic canadian rock", "classic garage rock", "classic rock",
-      "cock rock", "college rock", "desert rock", "experimental rock", "funk rock", "garage rock",
-      "glam rock", "hard rock", "heartland rock", "heavy alternative", "instrumental rock", "j-rock",
-      "krautrock", "madchester", "math rock", "modern alternative rock", "neo-psychedelic", "noise rock",
-      "piano rock", "post-grunge", "post-rock", "power pop", "prog rock", "psychedelic rock", "pub rock",
-      "roots rock", "shoegaze", "slowcore", "soft rock", "southern rock", "space rock", "spaghetti western",
-      "stoner rock", "surf rock", "swamp rock", "symphonic rock", "yacht rock", "acoustic rock",
-      "afro rock", "albanian rock", "anatolian rock", "argentine rock", "baroque rock",
-      "beat music", "bubblegum rock", "brazilian rock", "canadian rock", "celtic rock",
-      "chilean rock", "christian rock", "cinematic rock", "comedy rock", "cosmic rock",
-      "danish rock", "dutch rock", "electronic rock style", "folk rock", "german rock",
-      "gothic rock", "heavy psych", "icelandic rock", "indian rock", "italian progressive rock",
-      "japanese psych rock", "latin rock", "lover's rock style", "mexican rock", "motown rock",
-      "neo-prog", "new wave rock", "norwegian rock", "occult rock", "parisian rock",
-      "polish rock", "pop rock", "raga rock", "rap rock", "rock and roll", "rock en espanol",
-      "rockabilly style", "russian rock", "scandinavian rock", "spanish modern rock",
-      "stoner psych", "swedish rock", "twee rock", "viking rock", "vintage rock", "welsh rock"
+      "acid rock", "acoustic rock", "action rock", "afro rock", "albanian rock", "alternative rock",
+      "anatolian rock", "arena rock", "argentine rock", "art rock", "australian rock", "baroque rock",
+      "beat music", "blues rock", "boogie rock", "brazilian rock", "bubblegum rock", "canadian rock",
+      "celtic rock", "chilean rock", "christian rock", "cinematic rock", "classic canadian rock",
+      "classic garage rock", "classic rock", "cock rock", "college rock", "comedy rock", "cosmic rock",
+      "danish rock", "desert rock", "dutch rock", "electronic rock style", "experimental rock", "folk rock",
+      "funk rock", "garage rock", "german rock", "glam rock", "gothic rock", "hard rock", "heartland rock",
+      "heavy alternative", "heavy psych", "icelandic rock", "indian rock", "instrumental rock",
+      "italian progressive rock", "j-rock", "japanese psych rock", "krautrock", "latin rock",
+      "lover's rock style", "madchester", "math rock", "mexican rock", "modern alternative rock",
+      "motown rock", "neo-prog", "neo-psychedelic", "new wave rock", "noise rock", "norwegian rock",
+      "occult rock", "parisian rock", "piano rock", "polish rock", "pop rock", "post-grunge", "post-rock",
+      "power pop", "prog rock", "psychedelic rock", "pub rock", "raga rock", "rap rock", "rock and roll",
+      "rock en espanol", "rockabilly style", "roots rock", "russian rock", "scandinavian rock", "shoegaze",
+      "slowcore", "soft rock", "southern rock", "space rock", "spaghetti western", "spanish modern rock",
+      "stoner psych", "stoner rock", "surf rock", "swamp rock", "swedish rock", "symphonic rock",
+      "twee rock", "viking rock", "vintage rock", "welsh rock", "yacht rock"
     ]
   };
 
+  // Expanded Discovery Pools targeting highly ambiguous genres
   let GENRE_SEARCH_MAP = {
+    // Bass & Dubstep (Overrides Classical / Reggae)
     "organic bass": ["Of The Trees", "CharlesTheFirst", "Supertask", "CloZee", "Goopsteppa", "Chmura", "Esseks", "Player Dave"],
     "space bass": ["Liquid Stranger", "LSDREAM", "Peekaboo", "Inzo", "Ravenscoon", "Mersiv", "G-Rex", "Zingara"],
     "modular bass": ["G Jones", "Eprom", "Bleep Bloop", "Chee", "Shades", "Alix Perez", "IMANU", "Ivy Lab"],
-    "ambient 140": ["Kahn", "Alix Perez", "Ternion Sound", "Truth", "Commodo", "Biome", "J:Kenzo", "Distinct Motive"],
+    "ambient 140": ["Kahn", "Alix Perez", "Ternion Sound", "Commodo", "Biome", "J:Kenzo", "Distinct Motive"],
     "neuro glitch hop": ["Tipper", "Detox Unit", "Kursa", "Seppa", "Resonant Language", "Jade Cicada", "Spoonbill", "Culprate"],
-    "downtempo bass": ["Emancipator", "Tor", "Bluetech", "Tycho", "Bonobo", "Frameworks", "Random Rab", "Desert Dwellers"]
+    "downtempo bass": ["Emancipator", "Tor", "Bluetech", "Tycho", "Bonobo", "Frameworks", "Random Rab", "Desert Dwellers"],
+    "riddim": ["Infekt", "Virtual Riot", "Subtronics", "Boogie T", "Oolacile", "Svdden Death", "TrollPhace", "Midnight Tyrannosaurus"],
+    "color bass": ["Chime", "Ace Aura", "Papa Khan", "Voltra", "Sharks", "Oliverse"],
+    
+    // Wave & Trap (Overrides Pop / standard Hip Hop)
+    "wave": ["Skeler", "Deadcrow", "Klimeks", "Ytho", "Juche", "Enjoii", "Plastician"],
+    "hardwave": ["Skeler", "Deadcrow", "Klimeks", "Ytho", "Juche", "Enjoii"],
+    "trap": ["RL Grime", "Flosstradamus", "Baauer", "TroyBoi", "Mr. Carmack", "Hucci", "UZ", "Yellow Claw"],
+    "future bass": ["Flume", "Illenium", "San Holo", "Odesza", "Louis The Child", "Kasbo", "Alison Wonderland"],
+
+    // Club & House
+    "club": ["DJ Sliink", "Uniiqu3", "Rudd3boy", "Mighty Mark", "DJ Taye", "DJ Rashad"],
+    "bounce": ["Will Sparks", "Timmy Trumpet", "Joel Fletcher", "Deorro", "TJR"],
+    "french house": ["Daft Punk", "Justice", "Cassius", "Kavinsky", "SebastiAn", "Modjo"],
+
+    // Ambient & Drone (Overrides modern classical or sound effects)
+    "drone": ["Sunn O)))", "Tim Hecker", "Stars of the Lid", "William Basinski", "Fennesz", "Brian Eno"],
+    "dark ambient": ["Lustmord", "Cryo Chamber", "Atrium Carceri", "Kammarheit", "Raison d'être"],
+    "chillwave": ["Toro y Moi", "Washed Out", "Neon Indian", "Tycho", "Com Truise"],
+    "vaporwave": ["Macintosh Plus", "Blank Banshee", "Saint Pepsi", "2814", "Death's Dynamic Shroud"],
+    
+    // Metal & Core (Overrides standard Rock)
+    "deathcore": ["Lorna Shore", "Slaughter to Prevail", "Whitechapel", "Chelsea Grin", "Thy Art Is Murder"],
+    "metalcore": ["Architects", "Bring Me The Horizon", "Polaris", "Erra", "August Burns Red"],
+    "djent": ["Meshuggah", "Periphery", "Animals As Leaders", "Tesseract", "Monuments"],
+    "blackgaze": ["Deafheaven", "Alcest", "Lantlôs", "Ghost Bath", "Show Me A Dinosaur"],
+
+    // Hip Hop (Overrides standard Rap)
+    "phonk": ["Kaito Shoma", "LXST CXNTURY", "PlayaPhonk", "Kordhell", "Ghostface Playa"],
+    "drift phonk": ["Kordhell", "Pharmacist", "Dxrk", "Hensonn", "Interworld"],
+    "plugg": ["Mexikodro", "Diego Money", "Playboi Carti", "Tony Shhnow", "BoofPaxkMooky"],
+    "drill": ["Chief Keef", "Pop Smoke", "Fivio Foreign", "Headie One", "Central Cee", "King Von"]
   };
 
   let ALL_TAGS = [];
@@ -942,11 +976,22 @@
     }
   });
 
-  player.addEventListener("play", () => coverArt.classList.add("spinning"));
-  player.addEventListener("pause", () => coverArt.classList.remove("spinning"));
-  player.addEventListener("ended", () => {
+  player.addEventListener("play", () => {
+    coverArt.classList.add("spinning");
+    document.getElementById("playPauseText").textContent = "Pause";
+    document.getElementById("playIcon").innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+  });
+
+  player.addEventListener("pause", () => {
     coverArt.classList.remove("spinning");
+    document.getElementById("playPauseText").textContent = "Play";
+    document.getElementById("playIcon").innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+  });
+
+  player.addEventListener("ended", () => {
     progressFill.style.width = "0%";
+    document.getElementById("playPauseText").textContent = "Play";
+    document.getElementById("playIcon").innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
   });
 
   function formatTime(s) {
@@ -964,6 +1009,21 @@
     player.currentTime = pct * player.duration;
   }
 
+  function togglePlay() {
+    if (!player.src) return;
+    if (player.paused) {
+      player.play().catch(() => {});
+    } else {
+      player.pause();
+    }
+  }
+
+  function stopAudio() {
+    if (!player.src) return;
+    player.pause();
+    player.currentTime = 0;
+  }
+
   async function loadAutomatedGenreMap() {
     try {
       const res = await fetch('./genre_map.json');
@@ -972,7 +1032,7 @@
         GENRE_SEARCH_MAP = Object.assign({}, GENRE_SEARCH_MAP, liveMap);
       }
     } catch {
-      console.warn("Operating on local discovery pools.");
+      // Fallback pools remain active
     }
   }
 
@@ -1094,79 +1154,74 @@
     document.getElementById("songTitle").textContent = "Spinning roulette...";
     document.getElementById("songArtist").textContent = `Querying ${genre}`;
 
-    try {
-      let targetQuery = genre;
-      let attributeParam = "";
-      const mapped = GENRE_SEARCH_MAP[genre];
+    const mapped = GENRE_SEARCH_MAP[genre];
+    let candidatePool = [];
 
-      if (Array.isArray(mapped) && mapped.length > 0) {
-        targetQuery = mapped[Math.floor(Math.random() * mapped.length)];
-        attributeParam = "&attribute=artistTerm";
-      } else if (typeof mapped === "string") {
-        targetQuery = mapped;
-      }
-
-      // Attempt 1: Exact search query
-      let queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(targetQuery)}${attributeParam}&media=music&entity=song&limit=200`;
-      let data = await fetchJsonp(queryUrl);
-      let viable = data.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
-
-      // Attempt 2: Parent Family Fallback if empty
-      if (!viable.length) {
-        let parentFamilyName = null;
-        for (const [fam, subList] of Object.entries(TAXONOMY)) {
-          if (subList.includes(genre)) {
-            parentFamilyName = fam;
-            break;
-          }
-        }
-        if (parentFamilyName) {
-          const fallbackUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(parentFamilyName)}&media=music&entity=song&limit=200`;
-          const fallbackData = await fetchJsonp(fallbackUrl);
-          viable = fallbackData.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
-        }
-      }
-
-      // Attempt 3: Ultimate Broad Keyword Fallback
-      if (!viable.length) {
-        const keywords = genre.split(" ");
-        const broadTerm = keywords[keywords.length - 1];
-        const broadUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(broadTerm)}&media=music&entity=song&limit=200`;
-        const broadData = await fetchJsonp(broadUrl);
-        viable = broadData.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
-      }
-
-      if (!viable.length) {
-        document.getElementById("songTitle").textContent = "Zero samples found";
-        document.getElementById("songArtist").textContent = "Try rerolling or select another genre";
-        return;
-      }
-
-      const pick = viable[Math.floor(Math.random() * viable.length)];
-      playHistory.push(pick.trackId);
-      if (playHistory.length > 50) playHistory.shift();
-
-      currentTrack = {
-        id: pick.trackId,
-        title: pick.trackName,
-        artist: pick.artistName,
-        genre: genre,
-        cover: pick.artworkUrl100.replace("100x100bb", "400x400bb"),
-        previewUrl: pick.previewUrl,
-        appleUrl: pick.trackViewUrl
-      };
-
-      document.getElementById("songTitle").textContent = currentTrack.title;
-      document.getElementById("songArtist").textContent = currentTrack.artist;
-      coverArt.src = currentTrack.cover;
-
-      player.src = currentTrack.previewUrl;
-      player.play().catch(() => {});
-    } catch (err) {
-      console.error(err);
-      document.getElementById("songTitle").textContent = "Connection issue";
-      document.getElementById("songArtist").textContent = "Check network or pick another tag";
+    if (Array.isArray(mapped) && mapped.length > 0) {
+      candidatePool = [...mapped].sort(() => 0.5 - Math.random());
+    } else {
+      candidatePool = [genre];
     }
+
+    let pick = null;
+
+    for (const seed of candidatePool) {
+      try {
+        const isMappedArtist = Array.isArray(mapped);
+        const attributeParam = isMappedArtist ? "&attribute=artistTerm" : "";
+        const queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(seed)}${attributeParam}&media=music&entity=song&limit=100`;
+        const data = await fetchJsonp(queryUrl);
+
+        if (!data.results || data.results.length === 0) continue;
+
+        const viable = data.results.filter(t => {
+          if (!t.previewUrl || playHistory.includes(t.trackId)) return false;
+
+          if (isMappedArtist) {
+            // STRICT CLIENT-SIDE CHECK: Exact string inclusion ensures classical artists don't slip in
+            const artistLower = (t.artistName || "").toLowerCase();
+            const seedLower = seed.toLowerCase();
+            return artistLower === seedLower || artistLower.includes(seedLower);
+          } else {
+            const pGenre = (t.primaryGenreName || "").toLowerCase();
+            return pGenre !== "spoken word" && pGenre !== "comedy";
+          }
+        });
+
+        if (viable.length > 0) {
+          pick = viable[Math.floor(Math.random() * viable.length)];
+          break; 
+        }
+      } catch (err) {
+        console.warn(`Seed failed for "${seed}":`, err);
+      }
+    }
+
+    if (!pick) {
+      document.getElementById("songTitle").textContent = "Zero clean samples found";
+      document.getElementById("songArtist").textContent = "Try rerolling or pick another tag";
+      return;
+    }
+
+    playHistory.push(pick.trackId);
+    if (playHistory.length > 50) playHistory.shift();
+
+    currentTrack = {
+      id: pick.trackId,
+      title: pick.trackName,
+      artist: pick.artistName,
+      genre: genre,
+      cover: pick.artworkUrl100.replace("100x100bb", "400x400bb"),
+      previewUrl: pick.previewUrl,
+      appleUrl: pick.trackViewUrl
+    };
+
+    document.getElementById("songTitle").textContent = currentTrack.title;
+    document.getElementById("songArtist").textContent = currentTrack.artist;
+    coverArt.src = currentTrack.cover;
+
+    player.src = currentTrack.previewUrl;
+    player.play().catch(() => {});
   }
 
   function rerollTrack() {
