@@ -912,7 +912,6 @@
     ]
   };
 
-  // Static fallback discovery pools in case genre_map.json is loading or offline
   let GENRE_SEARCH_MAP = {
     "organic bass": ["Of The Trees", "CharlesTheFirst", "Supertask", "CloZee", "Goopsteppa", "Chmura", "Esseks", "Player Dave"],
     "space bass": ["Liquid Stranger", "LSDREAM", "Peekaboo", "Inzo", "Ravenscoon", "Mersiv", "G-Rex", "Zingara"],
@@ -971,7 +970,6 @@
       if (res.ok) {
         const liveMap = await res.json();
         GENRE_SEARCH_MAP = Object.assign({}, GENRE_SEARCH_MAP, liveMap);
-        console.log("Daily automated genre pool active:", Object.keys(liveMap).length, "tags updated");
       }
     } catch {
       console.warn("Operating on local discovery pools.");
@@ -1102,16 +1100,41 @@
       const mapped = GENRE_SEARCH_MAP[genre];
 
       if (Array.isArray(mapped) && mapped.length > 0) {
-        // Randomly choose from the verified seed pool and lock query to artistTerm
         targetQuery = mapped[Math.floor(Math.random() * mapped.length)];
         attributeParam = "&attribute=artistTerm";
       } else if (typeof mapped === "string") {
         targetQuery = mapped;
       }
 
-      const queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(targetQuery)}${attributeParam}&media=music&entity=song&limit=200`;
-      const data = await fetchJsonp(queryUrl);
-      const viable = data.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
+      // Attempt 1: Exact search query
+      let queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(targetQuery)}${attributeParam}&media=music&entity=song&limit=200`;
+      let data = await fetchJsonp(queryUrl);
+      let viable = data.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
+
+      // Attempt 2: Parent Family Fallback if empty
+      if (!viable.length) {
+        let parentFamilyName = null;
+        for (const [fam, subList] of Object.entries(TAXONOMY)) {
+          if (subList.includes(genre)) {
+            parentFamilyName = fam;
+            break;
+          }
+        }
+        if (parentFamilyName) {
+          const fallbackUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(parentFamilyName)}&media=music&entity=song&limit=200`;
+          const fallbackData = await fetchJsonp(fallbackUrl);
+          viable = fallbackData.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
+        }
+      }
+
+      // Attempt 3: Ultimate Broad Keyword Fallback
+      if (!viable.length) {
+        const keywords = genre.split(" ");
+        const broadTerm = keywords[keywords.length - 1];
+        const broadUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(broadTerm)}&media=music&entity=song&limit=200`;
+        const broadData = await fetchJsonp(broadUrl);
+        viable = broadData.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
+      }
 
       if (!viable.length) {
         document.getElementById("songTitle").textContent = "Zero samples found";
