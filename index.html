@@ -1108,12 +1108,11 @@
         targetQuery = mapped;
       }
 
-      // Attempt 1: Exact search query
       let queryUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(targetQuery)}${attributeParam}&media=music&entity=song&limit=200`;
       let data = await fetchJsonp(queryUrl);
       let viable = data.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
 
-      // Attempt 2: Parent Family Fallback if empty
+      // Mobile Fallback: If exact microgenre seed query returns 0 results, retry using its parent family name
       if (!viable.length) {
         let parentFamilyName = null;
         for (const [fam, subList] of Object.entries(TAXONOMY)) {
@@ -1127,15 +1126,6 @@
           const fallbackData = await fetchJsonp(fallbackUrl);
           viable = fallbackData.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
         }
-      }
-
-      // Attempt 3: Ultimate Broad Keyword Fallback (Splits multi-word subgenres to guarantee a mobile hit)
-      if (!viable.length) {
-        const keywords = genre.split(" ");
-        const broadTerm = keywords[keywords.length - 1]; // Use the main descriptor word (e.g., "blues" from "alabama blues")
-        const broadUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(broadTerm)}&media=music&entity=song&limit=200`;
-        const broadData = await fetchJsonp(broadUrl);
-        viable = broadData.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId));
       }
 
       if (!viable.length) {
