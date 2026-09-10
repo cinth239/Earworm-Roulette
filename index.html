@@ -396,6 +396,7 @@
       background: rgba(244, 63, 94, 0.15);
       border-color: rgba(244, 63, 94, 0.3);
       color: #fda4af;
+      grid-column: span 2;
     }
 
     .btn-fav:hover {
@@ -555,7 +556,7 @@
     <div class="sidebar">
       <div class="deck-card">
         <div class="current-genre-badge" id="nowPlayingGenreBadge">Pick a Microgenre</div>
-        
+
         <div class="art-wrapper">
           <img id="coverArt" class="cover-art" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect width='100%25' height='100%25' fill='%23121622'/%3E%3C/svg%3E" alt="Vinyl" />
         </div>
@@ -566,7 +567,7 @@
         </div>
 
         <audio id="player" preload="none" oncontextmenu="return false;"></audio>
-        
+
         <div class="custom-player">
           <div class="progress-bar" id="progressBar" onclick="seekAudio(event)">
             <div class="progress-fill" id="progressFill"></div>
@@ -582,12 +583,12 @@
             <svg id="playIcon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
             <span id="playPauseText">Play</span>
           </button>
-          
+
           <button class="btn" onclick="stopAudio()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
             Stop
           </button>
-          
+
           <button class="btn" onclick="rerollTrack()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 3 21 3 21 8"></polyline>
@@ -598,7 +599,7 @@
             </svg>
             Spin Random
           </button>
-          
+
           <button class="btn btn-fav" onclick="saveFavorite()">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -923,7 +924,7 @@
     "neuro glitch hop": ["Tipper", "Detox Unit", "Kursa", "Seppa", "Resonant Language", "Jade Cicada", "Spoonbill", "Culprate"],
     "downtempo bass": ["Emancipator", "Tor", "Bluetech", "Tycho", "Bonobo", "Frameworks", "Random Rab", "Desert Dwellers"],
     "riddim": ["Infekt", "Virtual Riot", "Subtronics", "Boogie T", "Oolacile", "Svdden Death", "TrollPhace", "Midnight Tyrannosaurus"],
-    
+
     // Wave & Trap
     "wave": ["Skeler", "Deadcrow", "Klimeks", "Ytho", "Juche", "Enjoii", "Plastician"],
     "hardwave": ["Skeler", "Deadcrow", "Klimeks", "Ytho", "Juche", "Enjoii"],
@@ -938,7 +939,7 @@
     // Ambient & Drone
     "drone": ["Sunn O)))", "Tim Hecker", "Stars of the Lid", "William Basinski", "Fennesz", "Brian Eno"],
     "dark ambient": ["Lustmord", "Cryo Chamber", "Atrium Carceri", "Kammarheit", "Raison d'être"],
-    
+
     // Indie & Rock
     "dream pop": ["Beach House", "Slowdive", "Cocteau Twins", "Alvvays", "Mazzy Star", "Wild Nothing"],
     "shoegaze": ["My Bloody Valentine", "Slowdive", "Ride", "Lush", "Deafheaven", "DIIV"],
@@ -1037,7 +1038,7 @@
       ALL_TAGS = ALL_TAGS.concat(TAXONOMY[k]);
     });
     ALL_TAGS.sort((a, b) => a.localeCompare(b));
-    
+
     document.getElementById("loadStatus").textContent = `${ALL_TAGS.length} Subgenres`;
     renderFamilies();
     renderSubgenres();
@@ -1047,7 +1048,7 @@
   function renderFamilies() {
     const list = document.getElementById("familyList");
     list.innerHTML = "";
-    
+
     const families = Object.keys(TAXONOMY).sort((a, b) => a.localeCompare(b));
     document.getElementById("totalFamilies").textContent = families.length;
 
@@ -1113,7 +1114,7 @@
     return new Promise((resolve, reject) => {
       const callbackName = 'itunes_cb_' + Math.round(100000 * Math.random());
       const script = document.createElement('script');
-      
+
       const timeout = setTimeout(() => {
         cleanup();
         reject(new Error('Request timed out'));
@@ -1191,6 +1192,44 @@
       }
     }
 
+    // MULTI-TIER MOBILE FALLBACK LOGIC
+    // If exact query failed to yield a pick, attempt broader searches to guarantee a result
+    if (!pick && !Array.isArray(mapped)) {
+      try {
+        // Fallback 1: Parent Family Category
+        let parentFamilyName = null;
+        for (const [fam, subList] of Object.entries(TAXONOMY)) {
+          if (subList.includes(genre)) {
+            parentFamilyName = fam;
+            break;
+          }
+        }
+        
+        if (parentFamilyName) {
+          const fallbackUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(parentFamilyName)}&media=music&entity=song&limit=100`;
+          const fallbackData = await fetchJsonp(fallbackUrl);
+          if (fallbackData.results && fallbackData.results.length > 0) {
+            const viable = fallbackData.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId) && t.primaryGenreName?.toLowerCase() !== "spoken word" && t.primaryGenreName?.toLowerCase() !== "comedy");
+            if (viable.length > 0) pick = viable[Math.floor(Math.random() * viable.length)];
+          }
+        }
+
+        // Fallback 2: Broad Keyword Match (split multi-word subgenres)
+        if (!pick) {
+          const keywords = genre.split(" ");
+          const broadTerm = keywords[keywords.length - 1];
+          const broadUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(broadTerm)}&media=music&entity=song&limit=100`;
+          const broadData = await fetchJsonp(broadUrl);
+          if (broadData.results && broadData.results.length > 0) {
+            const viable = broadData.results.filter(t => t.previewUrl && !playHistory.includes(t.trackId) && t.primaryGenreName?.toLowerCase() !== "spoken word" && t.primaryGenreName?.toLowerCase() !== "comedy");
+            if (viable.length > 0) pick = viable[Math.floor(Math.random() * viable.length)];
+          }
+        }
+      } catch (err) {
+        console.warn("Fallback search failed:", err);
+      }
+    }
+
     if (!pick) {
       document.getElementById("songTitle").textContent = "Zero clean samples found";
       document.getElementById("songArtist").textContent = "Try rerolling or pick another tag";
@@ -1248,7 +1287,7 @@
     favs.forEach(t => {
       const q = encodeURIComponent(`${t.artist} ${t.title}`);
       const ytVideoQuery = encodeURIComponent(`${t.artist} ${t.title} official music video`);
-      
+
       const spotifyUrl = `https://open.spotify.com/search/${q}`;
       const ytMusicUrl = `https://music.youtube.com/search?q=${q}`;
       const ytVideoUrl = `https://www.youtube.com/results?search_query=${ytVideoQuery}`;
